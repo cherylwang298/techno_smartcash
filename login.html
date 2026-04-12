@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smartcash</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <!-- Phone Frame -->
+    <div class="w-[360px] h-[720px] bg-white rounded-[40px] shadow-2xl border border-gray-200 flex flex-col items-center p-6">
+
+        <!-- App Name -->
+        <div class="flex flex-row gap-3 items-center mt-10">
+            <div class="w-16 h-16 bg-gray-300 rounded-xl mb-3"></div>
+            <h2 class="text-2xl font-semibold tracking-wide">SMARTCASH</h2>
+        </div>
+
+      
+        <!-- Form -->
+        <div class="w-full mt-10 space-y-4 bg-blue-50 shadow-lg rounded-xl p-10">
+
+            <!-- Phone Number -->
+            <input 
+                type="text"
+                placeholder="Nomor Telepon"
+                class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+            />
+
+            <!-- Password -->
+            <input 
+                type="password"
+                placeholder="Password"
+                class="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-black"
+            />
+
+            <!-- Login Button -->
+            <button class="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition">
+                LOGIN
+            </button>
+
+        </div>
+
+        <!-- Register text -->
+        <p class="text-sm mt-6 text-gray-600">
+            Belum punya akun? <span class="font-semibold text-black cursor-pointer">daftar sekarang</span>
+        </p>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smartcash - Stok Pro Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'space-cadet': '#102B53',
+                        'ucla-blue': '#50698D',
+                        'pink-lavender': '#CEB5D4',
+                        'cyan-azure': '#4E7AB1',
+                        'air-blue': '#7D9FC0',
+                        'gold-cream': '#e7d3b0',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes flow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes alert-pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(206, 181, 212, 0.7);
+            }
+
+            70% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 10px rgba(206, 181, 212, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(206, 181, 212, 0);
+            }
+        }
+
+        .bg-animasi-smartcash {
+            background: linear-gradient(-45deg, #FFFFFF, #CEB5D4, #4E7AB1, #FFFFFF);
+            background-size: 400% 400%;
+            animation: flow 15s ease infinite;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .premium-card {
+            background: #FFFFFF;
+            box-shadow: 0 12px 30px -10px rgba(16, 43, 83, 0.15);
+            border: 2px solid #F1F5F9;
+        }
+
+        .alert-animate {
+            animation: alert-pulse 2s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100 flex items-center justify-center min-h-screen">
+
+    <div
+        class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-2xl border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
+
+        <div class="bg-animasi-smartcash pt-10 pb-5 px-6 relative z-30 border-b-2 border-white/50 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <input type="text" placeholder="Cari produk..."
+                        class="w-full pl-4 pr-4 py-3.5 bg-white/90 rounded-2xl text-sm font-black text-space-cadet outline-none shadow-sm">
+                </div>
+                <button onclick="openModal('add')"
+                    class="w-12 h-12 bg-space-cadet text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition">
+                    <i class="fa-solid fa-plus text-lg"></i>
+                </button>
+            </div>
+
+            <div class="flex gap-3 mt-5 overflow-x-auto hide-scrollbar pb-2 px-1">
+                <button
+                    class="flex-none px-6 py-2.5 bg-space-cadet text-white text-[10px] font-black rounded-full shadow-md uppercase tracking-widest whitespace-nowrap">Semua</button>
+                <button
+                    class="flex-none px-6 py-2.5 bg-white/60 text-space-cadet text-[10px] font-black rounded-full border border-white uppercase tracking-widest whitespace-nowrap">Makanan</button>
+                <button
+                    class="flex-none px-6 py-2.5 bg-white/60 text-space-cadet text-[10px] font-black rounded-full border border-white uppercase tracking-widest whitespace-nowrap">Minuman</button>
+                <button
+                    class="flex-none px-6 py-2.5 bg-white/60 text-space-cadet text-[10px] font-black rounded-full border border-white uppercase tracking-widest whitespace-nowrap">Snack</button>
+                <button
+                    class="flex-none px-6 py-2.5 bg-white/60 text-space-cadet text-[10px] font-black rounded-full border border-white uppercase tracking-widest whitespace-nowrap">Dessert</button>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pb-32 hide-scrollbar bg-slate-50/50 p-5">
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <div onclick="openModal('edit', 'Kopi Aren', 24, 15000, 10000)"
+                    class="premium-card rounded-[35px] overflow-hidden flex flex-col cursor-pointer active:scale-95 transition-all">
+                    <div class="w-full h-28 bg-slate-100 relative">
+                        <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=300"
+                            class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4 flex flex-col gap-3">
+                        <h3 class="text-[13px] font-black text-space-cadet uppercase tracking-tighter leading-tight">
+                            Kopi Aren</h3>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black text-cyan-azure uppercase">Beli</span>
+                                <span class="text-[11px] font-black text-cyan-azure">Rp 10.000</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black text-space-cadet/80 uppercase">Jual</span>
+                                <span class="text-[11px] font-black text-space-cadet/80">Rp 15.000</span>
+                            </div>
+                        </div>
+                        <div
+                            class="mt-1 py-3 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100">
+                            <span class="text-[12px] font-black text-ucla-blue uppercase tracking-widest">Stok:
+                                24</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="openModal('edit', 'Roti Bakar', 3, 12000, 8000)"
+                    class="premium-card rounded-[35px] overflow-hidden flex flex-col border-pink-lavender/50 border-2 bg-pink-lavender/5 cursor-pointer active:scale-95 transition-all">
+                    <div class="w-full h-28 bg-slate-100 relative">
+                        <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300"
+                            class="w-full h-full object-cover">
+                        <div
+                            class="absolute top-2 right-2 w-7 h-7 bg-pink-500 text-white rounded-full flex items-center justify-center shadow-lg alert-animate">
+                            <i class="fa-solid fa-triangle-exclamation text-[12px]"></i>
+                        </div>
+                    </div>
+                    <div class="p-4 flex flex-col gap-3">
+                        <h3 class="text-[13px] font-black text-space-cadet uppercase tracking-tighter leading-tight">
+                            Roti Bakar</h3>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black text-cyan-azure uppercase">Beli</span>
+                                <span class="text-[11px] font-black text-cyan-azure">Rp 8.000</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black text-space-cadet/80 uppercase">Jual</span>
+                                <span class="text-[11px] font-black text-space-cadet/80">Rp 12.000</span>
+                            </div>
+                        </div>
+                        <div
+                            class="mt-1 py-3 bg-pink-500/10 rounded-2xl flex items-center justify-center border border-pink-500/20">
+                            <span class="text-[12px] font-black text-pink-600 uppercase italic tracking-tighter">Sisa: 3
+                                Pcs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="premium-card rounded-[35px] overflow-hidden flex flex-col opacity-70 grayscale-[0.3] relative group">
+                    <div
+                        class="absolute inset-0 z-10 flex items-center justify-center bg-space-cadet/30 backdrop-blur-[1px]">
+                        <div
+                            class="bg-white px-6 py-2 rounded-xl shadow-2xl transform -rotate-12 border-2 border-space-cadet">
+                            <span class="text-[14px] font-black text-space-cadet uppercase tracking-widest">Habis</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-28 bg-slate-200">
+                        <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300"
+                            class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4 flex flex-col gap-3">
+                        <h3 class="text-[13px] font-black text-space-cadet uppercase tracking-tighter leading-tight">Teh
+                            Tarik</h3>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black text-space-cadet/40 uppercase">Beli</span>
+                                <span class="text-[11px] font-black text-space-cadet">Rp 7.000</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] font-black text-space-cadet/40 uppercase">Jual</span>
+                                <span class="text-[11px] font-black text-space-cadet">Rp 10.000</span>
+                            </div>
+                        </div>
+                        <div
+                            class="mt-1 py-3 bg-slate-200 rounded-2xl flex items-center justify-center border border-slate-300">
+                            <span class="text-[12px] font-black text-slate-500 uppercase tracking-widest">Stok: 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modalStok"
+            class="hidden absolute inset-0 bg-space-cadet/40 backdrop-blur-sm z-[60] flex items-end transition-all duration-300">
+            <div class="w-full bg-white rounded-t-[40px] px-6 pt-4 pb-8 shadow-2xl">
+                <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-6"></div>
+
+                <h3 id="modalTitle"
+                    class="text-lg font-black text-space-cadet mb-6 text-center uppercase tracking-widest">Edit Produk
+                </h3>
+
+                <form class="space-y-4">
+                    <div
+                        class="w-full h-24 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-ucla-blue/40 hover:bg-slate-100 transition-all cursor-pointer">
+                        <i class="fa-solid fa-camera text-xl mb-1"></i>
+                        <span class="text-[9px] font-black uppercase">Ganti Foto</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-50 rounded-xl px-4 py-2.5">
+                            <label class="block text-[9px] font-black text-ucla-blue/60 uppercase mb-1">Nama
+                                Produk</label>
+                            <input id="formName" type="text" placeholder="Masukkan nama..."
+                                class="w-full bg-transparent outline-none font-bold text-space-cadet text-base">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-slate-50 rounded-xl px-4 py-2.5">
+                                <label class="block text-[9px] font-black text-ucla-blue/60 uppercase mb-1">Sisa
+                                    Stok</label>
+                                <input id="formStock" type="text" inputmode="numeric"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="0"
+                                    class="w-full bg-transparent outline-none font-bold text-space-cadet text-base">
+                            </div>
+                            <div class="bg-slate-50 rounded-xl px-4 py-2.5">
+                                <label
+                                    class="block text-[9px] font-black text-ucla-blue/60 uppercase mb-1">Kategori</label>
+                                <input id="formCategory" type="text" list="categoryOptions" placeholder="Pilih/Ketik..."
+                                    class="w-full bg-transparent outline-none font-bold text-space-cadet text-base">
+                                <datalist id="categoryOptions">
+                                    <option value="Makanan">
+                                    <option value="Minuman">
+                                    <option value="Snack">
+                                </datalist>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-slate-50 rounded-xl px-4 py-2.5 border border-pink-500/30">
+                                <label class="block text-[9px] font-black text-pink-600 uppercase mb-1">Harga Beli
+                                    (Rp)</label>
+                                <input id="formBuyPrice" type="text" inputmode="numeric"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="0"
+                                    class="w-full bg-transparent outline-none font-bold text-space-cadet text-base">
+                            </div>
+                            <div class="bg-slate-50 rounded-xl px-4 py-2.5 border border-cyan-500/30">
+                                <label class="block text-[9px] font-black text-cyan-600 uppercase mb-1">Harga Jual
+                                    (Rp)</label>
+                                <input id="formPrice" type="text" inputmode="numeric"
+                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')" placeholder="0"
+                                    class="w-full bg-transparent outline-none font-bold text-space-cadet text-base">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-2.5 mt-6">
+                        <button type="button" onclick="closeModal()"
+                            class="w-full py-4 bg-space-cadet text-white rounded-xl font-black text-[12px] uppercase tracking-widest shadow-lg active:scale-95 transition-all">
+                            Simpan Perubahan
+                        </button>
+
+                        <div class="flex gap-2.5">
+                            <button id="btnDelete" type="button"
+                                class="flex-1 py-3 bg-red-50 text-red-500 rounded-xl font-black text-[11px] uppercase tracking-widest">
+                                Hapus
+                            </button>
+                            <button onclick="closeModal()" type="button"
+                                class="flex-1 py-3 bg-slate-100 text-ucla-blue rounded-xl font-black text-[11px] uppercase tracking-widest">
+                                Batal
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div
+            class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 px-8 py-6 flex justify-between items-center z-50 rounded-b-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+            <a href="kasir.html" class="flex flex-col items-center text-ucla-blue/30"><i
+                    class="fa-solid fa-cash-register text-xl"></i><span
+                    class="text-[9px] font-black mt-1.5 uppercase">Kasir</span></a>
+            <a href="main_page.html" class="flex flex-col items-center text-ucla-blue/30"><i
+                    class="fa-solid fa-house-chimney text-xl"></i><span
+                    class="text-[9px] font-black mt-1.5 uppercase">Beranda</span></a>
+            <a href="stok.html" class="flex flex-col items-center text-space-cadet relative"><i
+                    class="fa-solid fa-box-open text-xl"></i><span
+                    class="text-[9px] font-black mt-1.5 uppercase tracking-widest">Stok</span>
+                <div class="absolute -bottom-2 w-1.5 h-1.5 bg-space-cadet rounded-full"></div>
+            </a>
+            <a href="profile.html" class="flex flex-col items-center text-ucla-blue/30"><i
+                    class="fa-solid fa-circle-user text-xl"></i><span
+                    class="text-[9px] font-black mt-1.5 uppercase">Profil</span></a>
+        </div>
+    </div>
+
+    <script>
+        function openModal(mode, name = '', stock = '', price = '') {
+            const modal = document.getElementById('modalStok');
+            const title = document.getElementById('modalTitle');
+            const delBtn = document.getElementById('btnDelete');
+
+            modal.classList.remove('hidden');
+
+            if (mode === 'edit') {
+                title.innerText = "Edit Produk";
+                delBtn.classList.remove('hidden');
+                document.getElementById('formName').value = name;
+                document.getElementById('formStock').value = stock;
+                document.getElementById('formPrice').value = price;
+            } else {
+                title.innerText = "Tambah Produk";
+                delBtn.classList.add('hidden');
+                document.getElementById('formName').value = '';
+                document.getElementById('formStock').value = '';
+                document.getElementById('formPrice').value = '';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modalStok').classList.add('hidden');
+        }
+    </script>
+</body>
+
+</html>

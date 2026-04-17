@@ -3,51 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartcash - Login</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Smartcash - Login Estetik</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'space-cadet': '#102B53',
+                        'ucla-blue': '#50698D',
+                        'pink-lavender': '#CEB5D4',
+                        'cyan-azure': '#4E7AB1',
+                        'air-blue': '#7D9FC0',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes flowAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .bg-animasi-smartcash {
+            background: linear-gradient(-45deg, #FFFFFF, #CEB5D4, #4E7AB1, #FFFFFF);
+            background-size: 400% 400%;
+            animation: flowAnimation 15s ease infinite;
+        }
+
+        .glass-form {
+            background: rgba(255, 255, 255, 0.6); /* Lebih putih dikit biar teks makin pop out */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .input-focus:focus {
+            border-color: #4E7AB1;
+            box-shadow: 0 0 0 4px rgba(78, 122, 177, 0.1);
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-slate-200 flex items-center justify-center min-h-screen">
 
-    <div class="w-[360px] h-[720px] bg-white rounded-[40px] shadow-2xl border border-gray-200 flex flex-col items-center p-6 relative overflow-hidden">
+    <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 relative overflow-hidden flex flex-col bg-animasi-smartcash p-8">
 
-        <div class="flex flex-row gap-3 items-center mt-10">
-            <div class="w-16 h-16 bg-blue-600 rounded-xl mb-3 flex items-center justify-center text-white font-bold text-2xl">S</div>
-            <h2 class="text-2xl font-semibold tracking-wide">SMARTCASH</h2>
+        <div class="flex flex-col items-center mt-8 mb-8">
+            <div class="w-16 h-16 bg-space-cadet rounded-[20px] mb-3 flex items-center justify-center text-white font-black text-3xl shadow-2xl rotate-3">
+                S
+            </div>
+            <h2 class="text-3xl font-black tracking-tighter text-space-cadet italic">SMARTCASH</h2>
+            <p class="text-[10px] font-bold text-ucla-blue/80 uppercase tracking-[0.2em]">Finance Assistant</p>
         </div>
 
-        <form action="proses_login.php" method="POST" class="w-full mt-10 space-y-4 bg-blue-50 shadow-lg rounded-2xl p-8">
+        <div class="glass-form rounded-[35px] p-7 shadow-2xl relative z-10">
+            <h3 class="text-xl font-black text-space-cadet mb-6">Selamat Datang!</h3>
             
-            <div>
-                <input 
-                    type="tel"
-                    name="phone"
-                    placeholder="Nomor Telepon"
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
+            <form action="proses_login.php" method="POST" class="space-y-4">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+                        <i class="fa-solid fa-phone text-sm"></i>
+                    </span>
+                    <input 
+                        type="tel"
+                        name="phone"
+                        placeholder="Nomor Telepon"
+                        required
+                        class="w-full pl-11 pr-4 py-4 bg-white border-2 border-transparent rounded-2xl outline-none input-focus transition-all font-bold text-space-cadet placeholder:text-ucla-blue/30 text-sm shadow-sm"
+                    />
+                </div>
+
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                    </span>
+                    <input 
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        required
+                        class="w-full pl-11 pr-4 py-4 bg-white border-2 border-transparent rounded-2xl outline-none input-focus transition-all font-bold text-space-cadet placeholder:text-ucla-blue/30 text-sm shadow-sm"
+                    />
+                </div>
+
+                <div class="flex justify-end">
+                    <a href="#" class="text-[11px] font-bold text-cyan-azure hover:text-space-cadet underline decoration-2 underline-offset-4 transition">Lupa Password?</a>
+                </div>
+
+                <button type="submit" name="login" class="w-full bg-space-cadet text-white py-4 rounded-2xl font-black hover:bg-slate-800 transition active:scale-95 shadow-xl shadow-space-cadet/30 mt-2 tracking-widest text-sm">
+                    MASUK SEKARANG
+                </button>
+            </form>
+        </div>
+
+        <div class="mt-auto mb-12 text-center relative z-20">
+            <div class="bg-white/40 backdrop-blur-md py-3 px-6 rounded-full inline-block border border-white/60 shadow-sm">
+                <p class="text-[12px] font-bold text-space-cadet">
+                    Belum punya akun? 
+                    <a href="register.html" class="text-cyan-azure hover:text-space-cadet font-black underline decoration-2 underline-offset-2 ml-1 transition-all">DAFTAR</a>
+                </p>
             </div>
+        </div>
 
-            <div>
-                <input 
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
-            </div>
-
-            <button type="submit" name="login" class="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition active:scale-95">
-                LOGIN
-            </button>
-
-        </form>
-
-        <p class="text-sm mt-8 text-gray-600">
-            Belum punya akun? 
-            <a href="register.html" class="font-semibold text-blue-600 hover:underline">daftar sekarang</a>
-        </p>
+        <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-pink-lavender/40 rounded-full blur-3xl"></div>
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-cyan-azure/30 rounded-full blur-3xl"></div>
 
     </div>
 

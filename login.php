@@ -64,7 +64,7 @@
         <div class="glass-form rounded-[35px] p-7 shadow-2xl relative z-10">
             <h3 class="text-xl font-black text-space-cadet mb-6">Selamat Datang!</h3>
             
-            <form action="proses_login.php" method="POST" class="space-y-4">
+            <form action="LoginController.php" method="POST" class="space-y-4">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
                         <i class="fa-solid fa-phone text-sm"></i>
@@ -105,7 +105,7 @@
             <div class="bg-white/40 backdrop-blur-md py-3 px-6 rounded-full inline-block border border-white/60 shadow-sm">
                 <p class="text-[12px] font-bold text-space-cadet">
                     Belum punya akun? 
-                    <a href="register.html" class="text-cyan-azure hover:text-space-cadet font-black underline decoration-2 underline-offset-2 ml-1 transition-all">DAFTAR</a>
+                    <a href="register.php" class="text-cyan-azure hover:text-space-cadet font-black underline decoration-2 underline-offset-2 ml-1 transition-all">DAFTAR</a>
                 </p>
             </div>
         </div>

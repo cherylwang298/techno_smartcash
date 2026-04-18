@@ -9,6 +9,8 @@ $sql = "CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )";
 
+
+
 if ($conn->query($sql) === TRUE) {
     echo "Tabel 'users' berhasil dibuat atau sudah ada.";
 } else {

@@ -198,7 +198,7 @@
                 <i class="fa-solid fa-cash-register text-xl"></i>
                 <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Kasir</span>
             </a>
-            <a href="main_page.html" class="flex flex-col items-center text-space-cadet relative">
+            <a href="main_page.php" class="flex flex-col items-center text-space-cadet relative">
                 <i class="fa-solid fa-house-chimney text-xl"></i>
                 <span class="text-[9px] font-black mt-1.5 uppercase tracking-widest">Beranda</span>
                 <div class="absolute -bottom-2 w-1.5 h-1.5 bg-space-cadet rounded-full"></div>

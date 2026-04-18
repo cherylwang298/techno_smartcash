@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: register_usaha.php");
         } else {
             // Jika klik "Selesai", arahkan ke dashboard utama
-            header("Location: dashboard.php");
+            header("Location: main_page.php");
         }
         exit();
     } else {

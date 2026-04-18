@@ -63,76 +63,109 @@
 
         <!-- FORM -->
         <div class="glass-form rounded-[35px] p-6 shadow-2xl relative z-10 overflow-y-auto max-h-[520px]">
-            <form action="BusinessController.php" method="POST" class="space-y-3.5">
+            <form action="BusinessController.php" method="POST" enctype="multipart/form-data" class="space-y-3.5">
 
-                <!-- Nama Usaha -->
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
-                        <i class="fa-solid fa-store text-xs"></i>
-                    </span>
-                    <input type="text" name="business_name" placeholder="Nama Usaha" required
-                        class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
-                </div>
+    <!-- user_id (hidden dari session nanti) -->
+    <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?? '' ?>">
 
-                <!-- Jenis Usaha -->
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
-                        <i class="fa-solid fa-layer-group text-xs"></i>
-                    </span>
-                    <input type="text" name="business_type" placeholder="Jenis Usaha (F&B, Retail, dll)" required
-                        class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
-                </div>
+    <!-- Nama Usaha -->
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+            <i class="fa-solid fa-store text-xs"></i>
+        </span>
+        <input type="text" name="business_name" placeholder="Nama Usaha" required
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
+    </div>
 
-                <!-- Alamat -->
-                <div class="relative">
-                    <span class="absolute top-4 left-4 text-space-cadet/40">
-                        <i class="fa-solid fa-location-dot text-xs"></i>
-                    </span>
-                    <textarea name="address" placeholder="Alamat Usaha" required
-                        class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm resize-none h-20"></textarea>
-                </div>
+    <!-- Jenis Usaha -->
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+            <i class="fa-solid fa-layer-group text-xs"></i>
+        </span>
+        <input type="text" name="business_type" placeholder="Jenis Usaha (F&B, Retail, dll)"
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
+    </div>
 
-                <!-- Nomor Telepon -->
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
-                        <i class="fa-solid fa-phone text-xs"></i>
-                    </span>
-                    <input type="tel" name="business_phone" placeholder="Nomor Telepon Usaha" required
-                        class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
-                </div>
+    <!-- Category -->
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+            <i class="fa-solid fa-tags text-xs"></i>
+        </span>
+        <input type="text" name="category" placeholder="Kategori (Contoh: Food, Tech, Service)"
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
+    </div>
 
-                <!-- Modal Awal -->
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
-                        <i class="fa-solid fa-coins text-xs"></i>
-                    </span>
-                    <input type="number" name="capital" placeholder="Modal Awal (Rp)" required
-                        class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
-                </div>
+    <!-- Logo -->
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+            <i class="fa-solid fa-image text-xs"></i>
+        </span>
+        <input type="file" name="logo" accept="image/*"
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm bg-white"/>
+    </div>
 
-                <!-- Deskripsi -->
-                <div class="relative">
-                    <span class="absolute top-4 left-4 text-space-cadet/40">
-                        <i class="fa-solid fa-align-left text-xs"></i>
-                    </span>
-                    <textarea name="description" placeholder="Deskripsi Usaha"
-                        class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm resize-none h-20"></textarea>
-                </div>
+    <!-- Alamat -->
+    <div class="relative">
+        <span class="absolute top-4 left-4 text-space-cadet/40">
+            <i class="fa-solid fa-location-dot text-xs"></i>
+        </span>
+        <textarea name="address" placeholder="Alamat Usaha"
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm resize-none h-20"></textarea>
+    </div>
 
-                <!-- BUTTON -->
-                <div class="pt-2 space-y-3">
-                    <button type="submit"
-                        class="w-full bg-space-cadet text-white py-4 rounded-2xl font-black hover:bg-slate-800 transition active:scale-95 shadow-lg tracking-widest text-[11px]">
-                        SIMPAN USAHA
-                    </button>
+    <!-- Kota -->
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+            <i class="fa-solid fa-city text-xs"></i>
+        </span>
+        <input type="text" name="city" placeholder="Kota"
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
+    </div>
 
-                    <a href="dashboard.php"
-                        class="block text-center w-full border-2 border-space-cadet text-space-cadet py-3.5 rounded-2xl font-black hover:bg-space-cadet hover:text-white transition text-[11px] tracking-widest bg-white/50">
-                        LEWATI DULU
-                    </a>
-                </div>
+    <!-- Nomor Telepon -->
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+            <i class="fa-solid fa-phone text-xs"></i>
+        </span>
+        <input type="tel" name="phone_number" placeholder="Nomor Telepon Usaha"
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
+    </div>
 
-            </form>
+    <!-- Modal -->
+    <div class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
+            <i class="fa-solid fa-coins text-xs"></i>
+        </span>
+        <input type="number" name="capital" placeholder="Modal Awal (Rp)"
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
+    </div>
+
+    <!-- Deskripsi -->
+    <div class="relative">
+        <span class="absolute top-4 left-4 text-space-cadet/40">
+            <i class="fa-solid fa-align-left text-xs"></i>
+        </span>
+        <textarea name="description" placeholder="Deskripsi Usaha"
+            class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm resize-none h-20"></textarea>
+    </div>
+
+    <!-- is_pro (default 0 / optional upgrade) -->
+    <input type="hidden" name="is_pro" value="0">
+
+    <!-- BUTTON -->
+    <div class="pt-2 space-y-3">
+        <button type="submit"
+            class="w-full bg-space-cadet text-white py-4 rounded-2xl font-black hover:bg-slate-800 transition active:scale-95 shadow-lg tracking-widest text-[11px]">
+            SIMPAN USAHA
+        </button>
+
+        <a href="dashboard.php"
+            class="block text-center w-full border-2 border-space-cadet text-space-cadet py-3.5 rounded-2xl font-black hover:bg-space-cadet hover:text-white transition text-[11px] tracking-widest bg-white/50">
+            LEWATI DULU
+        </a>
+    </div>
+
+</form>
         </div>
 
         <!-- FOOTER -->

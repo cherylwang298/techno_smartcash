@@ -1,3 +1,31 @@
+<?php
+session_start();
+include 'db.php';
+
+$user_id = $_SESSION['user_id'] ?? null;
+
+if (!$user_id) {
+    header("Location: login.php");
+    exit;
+}
+
+$sql = "SELECT business_name, logo 
+        FROM businesses 
+        WHERE user_id = ? 
+        LIMIT 1";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+
+$result = $stmt->get_result();
+$business = $result->fetch_assoc();
+
+$business_name = $business['business_name'] ?? "My Business";
+$logo = $business['logo'] ?? null;
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -70,11 +98,18 @@
         <div class="bg-animasi-smartcash pt-10 pb-5 px-6 relative z-30 border-b-2 border-white/50 shadow-sm">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div
-                        class="w-11 h-11 bg-space-cadet rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-xl">
-                        TS</div>
+                    <?php if (!empty($logo)) : ?>
+    <img src="<?= htmlspecialchars($logo) ?>" 
+         class="w-11 h-11 rounded-2xl object-cover shadow-xl border border-white/30" 
+         alt="Business Logo">
+<?php else : ?>
+    <div class="w-11 h-11 bg-space-cadet rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-xl">
+        <?= strtoupper(substr($business_name, 0, 2)) ?>
+    </div>
+<?php endif; ?>
                     <div>
-                        <h1 class="text-base font-black text-space-cadet leading-none tracking-tighter">Toko Sejahtera
+                        <h1 class="text-base font-black text-space-cadet leading-none tracking-tighter">
+                             <?= htmlspecialchars($business_name) ?>
                         </h1>
                         <p class="text-[9px] font-black text-space-cadet/60 mt-1 uppercase tracking-widest italic">
                             Personal Dashboard</p>

@@ -130,9 +130,22 @@
                     <i class="fa-solid fa-arrow-right-long text-pink-lavender/40 text-lg relative z-10"></i>
                 </a>
 
-                <button onclick="document.getElementById('logoutModal').classList.remove('hidden')" class="w-full mt-8 bg-red-600 text-white font-black py-5 rounded-[24px] hover:bg-red-700 transition shadow-xl shadow-red-500/20 flex items-center justify-center gap-3 tracking-widest text-sm">
-                    <i class="fa-solid fa-power-off"></i> LOGOUT
-                </button>
+                <a href="LogoutController.php"
+   class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between  bg-red-500
+          hover:scale-[1.02] transition transform active:scale-95 group border border-red-200/40">
+
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-white text-red-500  flex items-center justify-center shadow-lg">
+            <i class="fa-solid fa-right-from-bracket text-lg"></i>
+        </div>
+
+        <h3 class="text-base font-black text-white leading-wide text-center">
+            Logout
+        </h3>
+    </div>
+
+    <i class="fa-solid fa-chevron-right text-red-400 text-sm"></i>
+</a>
             </div>
         </div>
 
@@ -140,7 +153,7 @@
             <a href="kasir.html" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-cash-register text-xl mb-1"></i><span class="text-[10px] font-bold">Kasir</span></a>
             <a href="main_page.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-house text-xl mb-1"></i><span class="text-[10px] font-bold">Beranda</span></a>
             <a href="stok.html" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-box text-xl mb-1"></i><span class="text-[10px] font-bold">Stok</span></a>
-            <a href="profile.html" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a>
+            <a href="profile.php" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a>
         </div>
     </div>
 

@@ -242,7 +242,7 @@ $logo = $business['logo'] ?? null;
                 <i class="fa-solid fa-box text-xl"></i>
                 <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Stok</span>
             </a>
-            <a href="profile.html" class="flex flex-col items-center text-ucla-blue/30 hover:text-space-cadet transition">
+            <a href="profile.php" class="flex flex-col items-center text-ucla-blue/30 hover:text-space-cadet transition">
                 <i class="fa-solid fa-circle-user text-xl"></i>
                 <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Profil</span>
             </a>

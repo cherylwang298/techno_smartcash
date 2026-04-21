@@ -3,17 +3,16 @@ session_start();
 include 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $action = $_POST['action_type']; // 'add' atau 'edit'
+    $action = $_POST['action_type']; 
     $biz_id = $_POST['business_id'];
     $product_id = $_POST['product_id'] ?? null;
     
     $name = $_POST['name'];
     $category = $_POST['category'];
-    $buy_price = $_POST['purchase_price']; // dari form name="purchase_price"
-    $sell_price = $_POST['price'];        // dari form name="price"
+    $buy_price = $_POST['purchase_price']; 
+    $sell_price = $_POST['price'];        
     $stock = $_POST['stock'];
 
-    // --- LOGIKA UPLOAD FOTO ---
     $image_path = null;
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
         $target_dir = "uploads/products/";
@@ -31,20 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if ($action == 'add') {
-        // QUERY TAMBAH PRODUK
         $sql = "INSERT INTO products (business_id, name, category, buy_price, sell_price, stock, image_path) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("issddis", $biz_id, $name, $category, $buy_price, $sell_price, $stock, $image_path);
     } else {
-        // QUERY EDIT PRODUK
         if ($image_path) {
             // Jika ganti foto
             $sql = "UPDATE products SET name=?, category=?, buy_price=?, sell_price=?, stock=?, image_path=? WHERE id=? AND business_id=?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ssddisii", $name, $category, $buy_price, $sell_price, $stock, $image_path, $product_id, $biz_id);
         } else {
-            // Jika tidak ganti foto
             $sql = "UPDATE products SET name=?, category=?, buy_price=?, sell_price=?, stock=? WHERE id=? AND business_id=?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("ssddiii", $name, $category, $buy_price, $sell_price, $stock, $product_id, $biz_id);

@@ -46,7 +46,7 @@ $products = $stmt_stok->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartcash - Stok Pro Dashboard</title>
+    <title>Smartcash | Stok </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -129,7 +129,7 @@ $products = $stmt_stok->get_result();
 
     <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-2xl border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
 
-        <div class="bg-animasi-smartcash pt-10 pb-5 px-6 relative z-30 border-b-2 border-white/50 shadow-sm">
+        <div class="bg-[#4E7AB1]  pt-10 pb-5 px-6 relative z-30 border-b-2 border-white/50 shadow-sm">
             <div class="flex items-center gap-3">
                 <div class="relative flex-1">
                     <input type="text" id="searchInput" onkeyup="searchStok()" placeholder="Cari produk..."

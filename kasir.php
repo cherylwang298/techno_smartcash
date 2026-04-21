@@ -38,7 +38,7 @@ $products = $stmt_prod->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartcash - Kasir Pro</title>
+    <title>Smartcash | Kasir </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -111,7 +111,7 @@ $products = $stmt_prod->get_result();
 
     <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-2xl border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
 
-        <div class="bg-animasi-smartcash pt-10 pb-5 px-5 relative z-30 border-b-2 border-white/50 shadow-sm">
+        <div class="bg-[#4E7AB1] pt-10 pb-5 px-5 relative z-30 border-b-2 border-white/50 shadow-sm">
             <div class="flex items-center gap-2">
                 <button class="w-10 h-10 bg-white/80 backdrop-blur-md rounded-xl flex items-center justify-center text-space-cadet shadow-sm border border-white">
                     <i class="fa-solid fa-filter text-xs"></i>
@@ -229,6 +229,34 @@ $products = $stmt_prod->get_result();
             </div>
         </div>
 
+        
+                   <div id="successPopup" class="hidden absolute inset-0 z-[999] flex items-center justify-center">
+    <!-- overlay -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <!-- popup -->
+    <div class="relative bg-white w-[85%] rounded-3xl p-6 text-center shadow-2xl animate-scaleIn">
+        
+        <div class="w-16 h-16 mx-auto bg-green-100 text-green-500 rounded-2xl flex items-center justify-center text-2xl mb-4">
+            <i class="fa-solid fa-check"></i>
+        </div>
+
+        <h2 class="font-black text-lg text-space-cadet mb-2">
+            Transaksi Berhasil!
+        </h2>
+
+        <p id="successText" class="text-sm text-gray-500 mb-6">
+            <!-- nanti diisi dari JS -->
+        </p>
+
+        <button onclick="goToMain()" 
+            class="w-full py-3 bg-space-cadet text-white rounded-xl font-black">
+            OK
+        </button>
+    </div>
+</div>
+
+
         <div id="premiumModal" class="hidden absolute inset-0 z-[100] flex items-center justify-center">
 
     <!-- overlay -->
@@ -261,6 +289,8 @@ $products = $stmt_prod->get_result();
     </div>
 </div>
 
+
+
         <div class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 px-8 py-6 flex justify-between items-center z-50 rounded-b-[40px]">
             <a href="kasir.php" class="flex flex-col items-center text-space-cadet relative">
                 <i class="fa-solid fa-cash-register text-xl"></i>
@@ -282,6 +312,7 @@ $products = $stmt_prod->get_result();
     const currentQty = cart.filter(item => item.id === id).length;
 
     if (currentQty >= stock) {
+
         return;
     }
 
@@ -356,7 +387,30 @@ $products = $stmt_prod->get_result();
         //     window.location.href = 'main_page.php';
      //}
 
-     function successFinish(method) {
+//      function successFinish(method) {
+//     fetch('transaksi_kasir.php', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//             cart: cart,
+//             method: method
+//         })
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Transaksi berhasil! Total: Rp ' + total.toLocaleString('id-ID'));
+//             window.location.href = 'main_page.php';
+//         } else {
+//             alert('Gagal: ' + data.message);
+//         }
+//     });
+// }
+
+
+function successFinish(method) {
     fetch('transaksi_kasir.php', {
         method: 'POST',
         headers: {
@@ -370,12 +424,22 @@ $products = $stmt_prod->get_result();
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert('Transaksi berhasil! Total: Rp ' + total.toLocaleString('id-ID'));
-            window.location.href = 'main_page.php';
+
+            // isi text popup
+            document.getElementById('successText').innerText =
+                'Pembayaran ' + method + ' berhasil.\nTotal: Rp ' + total.toLocaleString('id-ID');
+
+            // tampilkan popup
+            document.getElementById('successPopup').classList.remove('hidden');
+
         } else {
             alert('Gagal: ' + data.message);
         }
     });
+}
+
+function goToMain() {
+    window.location.href = 'main_page.php';
 }
     </script>
 

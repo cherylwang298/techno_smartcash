@@ -10,7 +10,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $description = $_POST['description'];
     $date = $_POST['created_at'];
 
-    // Query untuk memasukkan data ke tabel transactions
     $sql = "INSERT INTO transactions (business_id, type, nominal, description, created_at) 
             VALUES (?, ?, ?, ?, ?)";
 
@@ -18,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt->bind_param("isdss", $biz_id, $type, $nominal, $description, $date);
 
     if ($stmt->execute()) {
-        // Langsung arahkan kembali ke dashboard
         header("Location: main_page.php");
         exit();
     } else {

@@ -1,5 +1,5 @@
 <?php
-include 'db.php'; // Mengambil file koneksi yang kamu buat tadi
+include 'db.php'; 
 
 $sql = "CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,

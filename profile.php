@@ -9,27 +9,23 @@ if (!$user_id) {
     exit;
 }
 
-// Ambil data user
 $sql_user = "SELECT fullname, subscription FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql_user);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 
-// Ambil data bisnis
 $sql_biz = "SELECT business_name, address, city FROM businesses WHERE user_id = ? LIMIT 1";
 $stmt2 = $conn->prepare($sql_biz);
 $stmt2->bind_param("i", $user_id);
 $stmt2->execute();
 $biz = $stmt2->get_result()->fetch_assoc();
 
-// Set fallback biar aman
 $nama_toko = $biz['business_name'] ?? "Toko Saya";
 $alamat = $biz['address'] ?? "Alamat belum diatur";
 $city = $biz['city'] ?? "";
 $subscription = $user['subscription'] ?? "free";
 
-// Ambil inisial buat avatar
 $initial = strtoupper(substr($nama_toko, 0, 1));
 ?>
 
@@ -74,7 +70,6 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Glassmorphism dibuat lebih solid putihnya agar teks terbaca */
         .glass-card-clear {
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(15px);
@@ -88,7 +83,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
 
     <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
 
-        <div class="flex-1 overflow-y-auto pb-28 hide-scrollbar bg-animasi-smartcash p-6">
+        <div class="flex-1 overflow-y-auto pb-28 hide-scrollbar bg-[#7D9FC0] p-6">
             
             <div class="pt-12 pb-10 flex flex-col items-center text-center">
                 <div class="relative mb-4">
@@ -159,7 +154,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
                             <i class="fa-solid fa-crown text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-base font-black text-pink-lavender leading-tight">SmartCash Pro</h3>
+                            <h3 class="text-base font-black text-pink-lavender leading-tight">SmartCash Premium</h3>
                             <p class="text-xs text-white/70 font-bold mt-0.5">Klik untuk berlangganan</p>
                         </div>
                     </div>
@@ -240,16 +235,8 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
     </div>
 </div>
 
-
-
-
-
-
-
-
         
     </div>
-
 
 
 <script>
@@ -263,14 +250,12 @@ function closeHelp() {
     document.body.style.overflow = 'auto';
 }
 
-// 👉 Ganti nomor admin kamu
 function contactWA() {
     const phone = "6281234567890"; // ganti
     const message = "Halo Admin SmartCash, saya butuh bantuan 🙏";
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// 👉 Email fallback
 function contactEmail() {
     window.location.href = "mailto:admin@smartcash.com?subject=Bantuan SmartCash";
 }

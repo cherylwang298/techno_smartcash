@@ -9,7 +9,6 @@ if (!$user_id) {
     exit;
 }
 
-// Ambil data user
 $sql = "SELECT fullname, subscription FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
@@ -23,7 +22,7 @@ $subscription = $user['subscription'] ?? 'free';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upgrade Premium</title>
+<title>SmartCash | Premium</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -79,7 +78,7 @@ tailwind.config = {
 <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 overflow-hidden flex flex-col relative">
 
     <!-- CONTENT -->
-    <div class="flex-1 bg-animasi-smartcash p-6 flex flex-col justify-between">
+    <div class="flex-1 bg-[#e7d3b0]/80 p-6 flex flex-col justify-between">
 
         <!-- HEADER -->
         <div>
@@ -97,7 +96,7 @@ tailwind.config = {
                 </h1>
 
                 <p class="text-sm text-space-cadet/70 mt-2">
-                    Buka semua fitur SmartCash Pro
+                    Buka semua fitur SmartCash Premium
                 </p>
             </div>
         </div>
@@ -107,21 +106,23 @@ tailwind.config = {
 
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-check text-green-500"></i>
-                <span class="font-bold text-sm">Unlimited Produk</span>
+                <span class="font-bold text-sm">Fitur Kasir</span>
             </div>
 
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-check text-green-500"></i>
-                <span class="font-bold text-sm">Statistik Penjualan</span>
+                <span class="font-bold text-sm">Produk Terlaris</span>
             </div>
+
+            <!-- soon nambah: download ke pdf -->
 
         </div>
 
         <div>
             <?php if ($subscription === 'premium'): ?>
 
-                <div class="text-center text-blue-900 font-black text-lg">
-                    Kamu sudah Premium
+                <div class="text-center text-space-cadet font-black text-lg">
+                    Kamu sudah Berlangganan SmartCash Premium
                 </div>
 
             <?php else: ?>
@@ -149,7 +150,7 @@ tailwind.config = {
                 Pilih Metode Pembayaran
             </h3>
             <p class="text-center text-xs text-gray-400 mb-5">
-                Upgrade ke SmartCash Pro
+                Upgrade ke SmartCash Premium
             </p>
 
             <div class="space-y-3">
@@ -160,11 +161,11 @@ tailwind.config = {
                     <i class="fa-solid fa-qrcode"></i>
                 </button>
 
-                <button onclick="processUpgrade('Cash')" 
+                <!-- <button onclick="processUpgrade('Cash')" 
                     class="w-full py-3 bg-slate-100 rounded-xl flex justify-between items-center px-4 font-bold hover:bg-slate-200 transition">
                     <span>Tunai</span>
                     <i class="fa-solid fa-money-bill"></i>
-                </button>
+                </button> -->
 
                 <button onclick="processUpgrade('Card')" 
                     class="w-full py-3 bg-slate-100 rounded-xl flex justify-between items-center px-4 font-bold hover:bg-slate-200 transition">

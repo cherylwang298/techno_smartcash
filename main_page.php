@@ -8,8 +8,7 @@ if (!$user_id) {
     exit;
 }
 
-// 1. Ambil Data Bisnis
-// Pastikan mengambil 'id' dan 'logo'
+// 1. Data Bisnis
 $sql_biz = "SELECT id, business_name, logo FROM businesses WHERE user_id = ? LIMIT 1";
 $stmt = $conn->prepare($sql_biz);
 $stmt->bind_param("i", $user_id);
@@ -17,8 +16,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 $business = $result->fetch_assoc();
 
-// TENTUKAN VARIABEL DEFAULT jika bisnis belum ada
-// Ini penting supaya query di bawahnya tidak error
 $business_id = $business['id'] ?? 0;
 $business_name = $business['business_name'] ?? "Bisnis Saya";
 $logo = $business['logo'] ?? "";
@@ -51,11 +48,9 @@ if ($business_id > 0) {
     $stmt_best->execute();
     $best_products = $stmt_best->get_result();
 } else {
-    // Buat result set kosong agar tidak error di loop while
-    $best_products = $result; // atau biarkan query tetap jalan dengan ID 0
+    $best_products = $result; 
 }
 
-// Fungsi helper untuk format angka
 function formatRupiah($angka)
 {
     $prefix = $angka < 0 ? "-" : "";
@@ -72,7 +67,7 @@ function formatRupiah($angka)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartcash - Midnight Professional Dashboard</title>
+    <title>Smartcash | Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -107,7 +102,6 @@ function formatRupiah($angka)
         function openModal(type) {
             const bizId = <?= $business_id ?>;
 
-            // Jika business_id adalah 0, munculkan custom alert di dalam app
             if (bizId === 0) {
                 showAlert();
                 return;
@@ -120,10 +114,7 @@ function formatRupiah($angka)
         }
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('status') === 'success') {
-            // Kamu bisa pakai alert biasa atau SweetAlert biar lebih cantik
             alert("Transaksi berhasil dicatat!");
-
-            // Bersihkan URL supaya kalau di-refresh alert-nya gak muncul lagi
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     </script>
@@ -170,7 +161,7 @@ function formatRupiah($angka)
     <div
         class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_30px_100px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
 
-        <div class="bg-animasi-smartcash pt-10 pb-5 px-6 relative z-30 border-b-2 border-white/50 shadow-sm">
+        <div class="bg-[#4E7AB1] pt-10 pb-5 px-6 relative z-30 border-b-2 border-white/50 shadow-sm">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <?php if (!empty($logo)) : ?>

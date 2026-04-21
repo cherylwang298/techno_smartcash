@@ -55,13 +55,28 @@ tailwind.config = {
     background-size: 400% 400%;
     animation: flowAnimation 15s ease infinite;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.25s ease;
+}
 </style>
 </head>
 
 <body class="bg-slate-200 flex items-center justify-center min-h-screen">
 
 <!-- DEVICE FRAME -->
-<div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 overflow-hidden flex flex-col">
+<div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 overflow-hidden flex flex-col relative">
 
     <!-- CONTENT -->
     <div class="flex-1 bg-animasi-smartcash p-6 flex flex-col justify-between">
@@ -111,7 +126,7 @@ tailwind.config = {
 
             <?php else: ?>
 
-                <button onclick="upgradeNow()"
+                <button onclick="openPayment()"
                     class="w-full py-4 bg-space-cadet text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition">
                     Upgrade Sekarang
                 </button>
@@ -121,17 +136,73 @@ tailwind.config = {
 
     </div>
 
+    <!-- 🔥 PAYMENT MODAL (INSIDE FRAME) -->
+    <div id="paymentModal" class="hidden absolute inset-0 z-50 flex items-center justify-center">
+
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+        <!-- Modal Box -->
+        <div class="relative w-[85%] bg-white rounded-3xl p-6 shadow-2xl animate-fadeIn">
+
+            <h3 class="text-center font-black text-space-cadet text-lg mb-1">
+                Pilih Metode Pembayaran
+            </h3>
+            <p class="text-center text-xs text-gray-400 mb-5">
+                Upgrade ke SmartCash Pro
+            </p>
+
+            <div class="space-y-3">
+
+                <button onclick="processUpgrade('QRIS')" 
+                    class="w-full py-3 bg-slate-100 rounded-xl flex justify-between items-center px-4 font-bold hover:bg-slate-200 transition">
+                    <span>QRIS / E-Wallet</span>
+                    <i class="fa-solid fa-qrcode"></i>
+                </button>
+
+                <button onclick="processUpgrade('Cash')" 
+                    class="w-full py-3 bg-slate-100 rounded-xl flex justify-between items-center px-4 font-bold hover:bg-slate-200 transition">
+                    <span>Tunai</span>
+                    <i class="fa-solid fa-money-bill"></i>
+                </button>
+
+                <button onclick="processUpgrade('Card')" 
+                    class="w-full py-3 bg-slate-100 rounded-xl flex justify-between items-center px-4 font-bold hover:bg-slate-200 transition">
+                    <span>Credit Card</span>
+                    <i class="fa-solid fa-credit-card"></i>
+                </button>
+
+            </div>
+
+            <button onclick="closePayment()" 
+                class="mt-5 w-full text-xs text-gray-400">
+                Batal
+            </button>
+
+        </div>
+    </div>
+
 </div>
 
 <script>
-function upgradeNow() {
+function openPayment() {
+    document.getElementById('paymentModal').classList.remove('hidden');
+}
+
+function closePayment() {
+    document.getElementById('paymentModal').classList.add('hidden');
+}
+
+function processUpgrade(method) {
     fetch('subscription_management.php', {
-        method: 'POST'
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ method })
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert('Berhasil upgrade');
+            alert('Upgrade berhasil 🎉');
             window.location.href = 'profile.php';
         } else {
             alert(data.message);

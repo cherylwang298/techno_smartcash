@@ -152,7 +152,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
                     <i class="fa-solid fa-chevron-right text-space-cadet/30 text-sm"></i>
                 </a>
 
-                <a href="#" class="w-full bg-space-cadet p-5 rounded-[24px] flex items-center justify-between shadow-2xl mt-6 relative overflow-hidden group">
+                <a href="upgrade_subscription.php" class="w-full bg-space-cadet p-5 rounded-[24px] flex items-center justify-between shadow-2xl mt-6 relative overflow-hidden group">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
                     <div class="flex items-center gap-4 relative z-10">
                         <div class="w-12 h-12 rounded-2xl bg-pink-lavender text-space-cadet flex items-center justify-center shadow-inner">
@@ -192,6 +192,8 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
             <a href="profile.php" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a>
         </div>
     </div>
+
+
 
 </body>
 </html>

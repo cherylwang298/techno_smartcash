@@ -190,10 +190,91 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
             <a href="main_page.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-house text-xl mb-1"></i><span class="text-[10px] font-bold">Beranda</span></a>
             <a href="stok.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-box text-xl mb-1"></i><span class="text-[10px] font-bold">Stok</span></a>
             <a href="profile.php" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a>
+        
+            
+        
+        
         </div>
+
+        <!-- HELP BUTTON (INSIDE PHONE) -->
+<button onclick="openHelp()" 
+    class="absolute bottom-28 right-5 w-14 h-14 bg-space-cadet text-white rounded-2xl shadow-2xl flex items-center justify-center z-[60] active:scale-90 transition">
+    <i class="fa-solid fa-headset text-xl"></i>
+</button>
+
+<!-- HELP MODAL -->
+<div id="helpModal" class="hidden absolute inset-0 z-[70] flex items-center justify-center">
+
+    <!-- overlay -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <!-- content -->
+    <div class="relative bg-white w-[85%] rounded-3xl p-6 text-center shadow-2xl">
+
+        <div class="w-16 h-16 mx-auto bg-blue-100 text-space-cadet rounded-2xl flex items-center justify-center text-2xl mb-4">
+            <i class="fa-solid fa-headset"></i>
+        </div>
+
+        <h2 class="font-black text-lg text-space-cadet mb-2">
+            Pusat Bantuan
+        </h2>
+
+        <p class="text-sm text-gray-500 mb-6">
+            Ada kendala? Hubungi admin SmartCash
+        </p>
+
+        <button onclick="contactWA()" 
+            class="w-full py-3 bg-green-500 text-white rounded-xl font-black mb-3">
+            Hubungi via WhatsApp
+        </button>
+
+        <button onclick="contactEmail()" 
+            class="w-full py-3 bg-space-cadet text-white rounded-xl font-black mb-3">
+            Kirim Email
+        </button>
+
+        <button onclick="closeHelp()" 
+            class="text-xs text-gray-400">
+            Tutup
+        </button>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+        
     </div>
 
 
+
+<script>
+function openHelp() {
+    document.getElementById('helpModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeHelp() {
+    document.getElementById('helpModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// 👉 Ganti nomor admin kamu
+function contactWA() {
+    const phone = "6281234567890"; // ganti
+    const message = "Halo Admin SmartCash, saya butuh bantuan 🙏";
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+}
+
+// 👉 Email fallback
+function contactEmail() {
+    window.location.href = "mailto:admin@smartcash.com?subject=Bantuan SmartCash";
+}
+</script>
 
 </body>
 </html>

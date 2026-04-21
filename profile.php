@@ -188,7 +188,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
         <div class="absolute bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-100 px-6 py-5 flex justify-between items-center z-40 rounded-b-[40px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
             <a href="kasir.html" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-cash-register text-xl mb-1"></i><span class="text-[10px] font-bold">Kasir</span></a>
             <a href="main_page.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-house text-xl mb-1"></i><span class="text-[10px] font-bold">Beranda</span></a>
-            <a href="stok.html" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-box text-xl mb-1"></i><span class="text-[10px] font-bold">Stok</span></a>
+            <a href="stok.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-box text-xl mb-1"></i><span class="text-[10px] font-bold">Stok</span></a>
             <a href="profile.php" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a>
         </div>
     </div>

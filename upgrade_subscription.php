@@ -120,7 +120,7 @@ tailwind.config = {
         <div>
             <?php if ($subscription === 'premium'): ?>
 
-                <div class="text-center text-yellow-500 font-black text-lg">
+                <div class="text-center text-blue-900 font-black text-lg">
                     Kamu sudah Premium
                 </div>
 
@@ -136,7 +136,7 @@ tailwind.config = {
 
     </div>
 
-    <!-- 🔥 PAYMENT MODAL (INSIDE FRAME) -->
+<!-- pilihan method pembayaran -->
     <div id="paymentModal" class="hidden absolute inset-0 z-50 flex items-center justify-center">
 
         <!-- Overlay -->
@@ -182,6 +182,34 @@ tailwind.config = {
         </div>
     </div>
 
+    <!-- modal sukses -->
+<div id="successModal" class="hidden absolute inset-0 z-50 flex items-center justify-center">
+
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <!-- Modal Box -->
+    <div class="relative bg-white w-[80%] rounded-3xl p-6 text-center shadow-2xl">
+
+        <div class="w-16 h-16 mx-auto bg-green-100 text-green-500 rounded-full flex items-center justify-center text-2xl mb-4">
+            <i class="fa-solid fa-check"></i>
+        </div>
+
+        <h3 class="font-black text-lg text-space-cadet mb-2">
+            Upgrade Berhasil
+        </h3>
+
+        <p class="text-sm text-gray-500 mb-5">
+            Sekarang kamu sudah menjadi Premium User
+        </p>
+
+        <button onclick="goToProfile()"
+            class="w-full py-3 bg-space-cadet text-white rounded-xl font-bold">
+            Kembali ke Profil
+        </button>
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -202,13 +230,22 @@ function processUpgrade(method) {
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            alert('Upgrade berhasil 🎉');
-            window.location.href = 'profile.php';
+
+            // tutup modal payment
+            closePayment();
+
+            // tampilkan success modal
+            document.getElementById('successModal').classList.remove('hidden');
+
         } else {
-            alert(data.message);
+            alert(data.message); // boleh tetep alert untuk error
         }
     })
     .catch(() => alert('Terjadi error'));
+}
+
+function goToProfile() {
+    window.location.href = 'profile.php';
 }
 </script>
 

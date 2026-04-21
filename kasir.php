@@ -127,7 +127,7 @@ $products = $stmt_prod->get_result();
             <div class="grid grid-cols-2 gap-4" id="productList">
                 <?php if ($products->num_rows > 0) : ?>
                     <?php while ($row = $products->fetch_assoc()) : ?>
-                        <div onclick="addToCart('<?= htmlspecialchars($row['name']) ?>', <?= $row['sell_price'] ?>)"
+                        <div onclick="addToCart(<?= $row['id'] ?>,'<?= htmlspecialchars($row['name']) ?>', <?= $row['sell_price'] ?>)"
                             class="product-card bg-white rounded-[32px] overflow-hidden flex flex-col active:scale-95 transition-all shadow-sm border border-slate-100 cursor-pointer">
 
                             <div class="w-full h-32 bg-slate-100 relative">
@@ -236,13 +236,14 @@ $products = $stmt_prod->get_result();
         let cart = [];
         let total = 0;
 
-        function addToCart(name, price) {
-            cart.push({
-                name,
-                price
-            });
-            updateCart();
-        }
+        function addToCart(id, name, price) {
+    cart.push({
+        id,
+        name,
+        price
+    });
+    updateCart();
+}
 
         function updateCart() {
             total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -296,10 +297,32 @@ $products = $stmt_prod->get_result();
             document.getElementById(id).classList.add('hidden');
         }
 
-        function successFinish(method) {
-            alert('Transaksi ' + method + ' Berhasil! Total: Rp ' + total.toLocaleString('id-ID'));
+        // function successFinish(method) {
+        //     alert('Transaksi ' + method + ' Berhasil! Total: Rp ' + total.toLocaleString('id-ID'));
+        //     window.location.href = 'main_page.php';
+     //}
+
+     function successFinish(method) {
+    fetch('transaksi_kasir.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            cart: cart,
+            method: method
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Transaksi berhasil! Total: Rp ' + total.toLocaleString('id-ID'));
             window.location.href = 'main_page.php';
+        } else {
+            alert('Gagal: ' + data.message);
         }
+    });
+}
     </script>
 </body>
 

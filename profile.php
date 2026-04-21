@@ -1,3 +1,38 @@
+<?php
+session_start();
+include 'db.php';
+
+$user_id = $_SESSION['user_id'] ?? null;
+
+if (!$user_id) {
+    header("Location: login.php");
+    exit;
+}
+
+// Ambil data user
+$sql_user = "SELECT fullname, subscription FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql_user);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+
+// Ambil data bisnis
+$sql_biz = "SELECT business_name, address, city FROM businesses WHERE user_id = ? LIMIT 1";
+$stmt2 = $conn->prepare($sql_biz);
+$stmt2->bind_param("i", $user_id);
+$stmt2->execute();
+$biz = $stmt2->get_result()->fetch_assoc();
+
+// Set fallback biar aman
+$nama_toko = $biz['business_name'] ?? "Toko Saya";
+$alamat = $biz['address'] ?? "Alamat belum diatur";
+$city = $biz['city'] ?? "";
+$subscription = $user['subscription'] ?? "free";
+
+// Ambil inisial buat avatar
+$initial = strtoupper(substr($nama_toko, 0, 1));
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,21 +93,22 @@
             <div class="pt-12 pb-10 flex flex-col items-center text-center">
                 <div class="relative mb-4">
                     <div class="w-24 h-24 bg-space-cadet rounded-full flex items-center justify-center text-white font-black text-4xl shadow-2xl border-4 border-white">
-                        TS
+                        <?= $initial ?>
                     </div>
                     <button class="absolute bottom-0 right-0 bg-pink-lavender text-space-cadet w-8 h-8 rounded-full flex items-center justify-center border-2 border-white shadow-lg">
                         <i class="fa-solid fa-camera text-xs"></i>
                     </button>
                 </div>
                 
-                <h1 class="text-2xl font-black text-space-cadet tracking-tight leading-none">Toko Sejahtera</h1>
+                <h1 class="text-2xl font-black text-space-cadet tracking-tight leading-none"><?= htmlspecialchars($nama_toko) ?></h1>
                 <p class="text-sm text-space-cadet/80 font-bold mt-2">
-                    <i class="fa-solid fa-location-dot mr-1"></i> Jl. Siwalankerto No. 121, Surabaya
+                    <i class="fa-solid fa-location-dot mr-1"></i> 
+                        <?= htmlspecialchars($alamat . ', ' . $city) ?>
                 </p>
                 
                 <div class="mt-5 px-5 py-2 bg-space-cadet rounded-full flex items-center gap-2 shadow-xl border border-white/20">
                     <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_#4ade80]"></div>
-                    <span class="text-xs font-black text-white uppercase tracking-widest">Free User</span>
+                    <span class="text-xs font-black text-white uppercase tracking-widest">  <?= strtoupper($subscription) ?> USER</span>
                 </div>
             </div>
 

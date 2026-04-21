@@ -194,6 +194,7 @@ $products = $stmt_prod->get_result();
 
                 <div class="flex gap-4 mb-4">
                     <button onclick="closeModal('cartModal')" class="flex-1 py-4 bg-white text-ucla-blue rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-slate-200">Batal</button>
+                    <button onclick="clearCart()" class="flex-1 py-4 bg-white text-ucla-blue rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-slate-200">Clear</button>
                     <button onclick="openPayment()" class="flex-1 py-4 bg-space-cadet text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl">Proses</button>
                 </div>
             </div>
@@ -293,6 +294,11 @@ $products = $stmt_prod->get_result();
             document.getElementById('paymentModal').classList.remove('hidden');
         }
 
+        function clearCart()
+            {
+                cart = [];
+                updateCart();
+            }
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
         }

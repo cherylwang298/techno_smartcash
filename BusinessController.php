@@ -2,84 +2,68 @@
 session_start();
 include 'db.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Proteksi halaman: Jika tidak ada session, tendang balik ke register
+if (!isset($_SESSION['user_id'])) {
+    header("Location: register.php");
+    exit();
+}
 
-    $user_id = $_SESSION['user_id'] ?? null;
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    
+    $user_id = $_SESSION['user_id'];
+    $business_name = $_POST['business_name'];
+    $business_type = $_POST['business_type'];
+    $category = $_POST['category'];
+    $address = $_POST['address'];
+    $city = $_POST['city'];
+    $phone_number = $_POST['phone_number'];
+    $capital = $_POST['capital'] ?? 0;
+    $description = $_POST['description'];
+    $is_pro = $_POST['is_pro'] ?? 0;
 
-    if (!$user_id) {
-        die("User belum login.");
+    // Logika Upload Logo
+    $logo_path = null;
+    if (isset($_FILES['logo']) && $_FILES['logo']['error'] == 0) {
+        $target_dir = "uploads/";
+        
+        if (!is_dir($target_dir)) {
+            mkdir($target_dir, 0777, true);
+        }
+
+        $file_extension = pathinfo($_FILES["logo"]["name"], PATHINFO_EXTENSION);
+        $new_filename = time() . '_' . uniqid() . '.' . $file_extension;
+        $logo_path = $target_dir . $new_filename;
+
+        move_uploaded_file($_FILES["logo"]["tmp_name"], $logo_path);
     }
 
-    // ====== GET FORM DATA ======
-    $business_name = $_POST['business_name'] ?? null;
-    $business_type = $_POST['business_type'] ?? null;
-    $category      = $_POST['category'] ?? null;
-    $address       = $_POST['address'] ?? null;
-    $city          = $_POST['city'] ?? null;
-    $phone_number  = $_POST['phone_number'] ?? null;
-    $capital       = $_POST['capital'] ?? 0;
-    $description   = $_POST['description'] ?? null;
-    $is_pro        = $_POST['is_pro'] ?? 0;
-
-    // ====== HANDLE LOGO UPLOAD ======
-    $logoPath = null;
-
-    if (!empty($_FILES['logo']['name'])) {
-
-        $uploadDir = "uploads/logos/";
-
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-
-        $fileName = time() . "_" . basename($_FILES["logo"]["name"]);
-        $targetFile = $uploadDir . $fileName;
-
-        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-
-        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-
-        if (!in_array($imageFileType, $allowed)) {
-            die("Format file tidak didukung.");
-        }
-
-        if (move_uploaded_file($_FILES["logo"]["tmp_name"], $targetFile)) {
-            $logoPath = $targetFile;
-        } else {
-            die("Upload logo gagal.");
-        }
-    }
-
-    // ====== MYSQLI INSERT ======
-    $sql = "INSERT INTO businesses 
-    (user_id, business_name, business_type, category, logo, address, city, phone_number, capital, description, is_pro)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // Query INSERT menggunakan Prepared Statement
+    $sql = "INSERT INTO businesses (
+                user_id, business_name, business_type, category, 
+                logo, address, city, phone_number, capital, 
+                description, is_pro
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
+    
+    if ($stmt) {
+        // i = integer, s = string, d = double
+        // Sesuaikan parameter terakhir (is_pro) jika di DB adalah integer gunakan 'i'
+        $stmt->bind_param(
+            "isssssssdss", 
+            $user_id, $business_name, $business_type, $category, 
+            $logo_path, $address, $city, $phone_number, $capital, 
+            $description, $is_pro
+        );
 
-    if (!$stmt) {
-        die("Prepare failed: " . $conn->error);
-    }
-
-    $stmt->bind_param(
-        "isssssssssi",
-        $user_id,
-        $business_name,
-        $business_type,
-        $category,
-        $logoPath,
-        $address,
-        $city,
-        $phone_number,
-        $capital,
-        $description,
-        $is_pro
-    );
-
-    if ($stmt->execute()) {
-        header("Location: main_page.php?success=1");
-        exit;
-    } else {
-        die("Insert gagal: " . $stmt->error);
+        if ($stmt->execute()) {
+            // Jika berhasil, langsung ke main_page.php tanpa pesan echo
+            header("Location: login.php");
+            exit();
+        } else {
+            // Ini tetap dibiarkan satu untuk jaga-jaga jika ada error database
+            die("Gagal menyimpan data usaha: " . $stmt->error);
+        }
     }
 }
+?>

@@ -82,7 +82,7 @@
         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
             <i class="fa-solid fa-layer-group text-xs"></i>
         </span>
-        <input type="text" name="business_type" placeholder="Jenis Usaha (F&B, Retail, dll)"
+        <input type="text" name="business_type" placeholder="Jenis Usaha (F&B, Retail, dll)" required
             class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
     </div>
 
@@ -91,7 +91,7 @@
         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
             <i class="fa-solid fa-tags text-xs"></i>
         </span>
-        <input type="text" name="category" placeholder="Kategori (Contoh: Food, Tech, Service)"
+        <input type="text" name="category" placeholder="Kategori (Contoh: Food, Tech, Service)" required
             class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
     </div>
 
@@ -109,7 +109,7 @@
         <span class="absolute top-4 left-4 text-space-cadet/40">
             <i class="fa-solid fa-location-dot text-xs"></i>
         </span>
-        <textarea name="address" placeholder="Alamat Usaha"
+        <textarea name="address" placeholder="Alamat Usaha" required
             class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm resize-none h-20"></textarea>
     </div>
 
@@ -118,7 +118,7 @@
         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
             <i class="fa-solid fa-city text-xs"></i>
         </span>
-        <input type="text" name="city" placeholder="Kota"
+        <input type="text" name="city" placeholder="Kota" required
             class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
     </div>
 
@@ -127,7 +127,7 @@
         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
             <i class="fa-solid fa-phone text-xs"></i>
         </span>
-        <input type="tel" name="phone_number" placeholder="Nomor Telepon Usaha"
+        <input type="tel" name="phone_number" placeholder="Nomor Telepon Usaha" required
             class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
     </div>
 
@@ -136,7 +136,7 @@
         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-space-cadet/40">
             <i class="fa-solid fa-coins text-xs"></i>
         </span>
-        <input type="number" name="capital" placeholder="Modal Awal (Rp)"
+        <input type="number" name="capital" placeholder="Modal Awal (Rp)" required
             class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm"/>
     </div>
 
@@ -145,7 +145,7 @@
         <span class="absolute top-4 left-4 text-space-cadet/40">
             <i class="fa-solid fa-align-left text-xs"></i>
         </span>
-        <textarea name="description" placeholder="Deskripsi Usaha"
+        <textarea name="description" placeholder="Deskripsi Usaha" required
             class="w-full pl-10 pr-4 py-3.5 rounded-2xl input-focus font-bold text-space-cadet text-sm resize-none h-20"></textarea>
     </div>
 
@@ -158,24 +158,11 @@
             class="w-full bg-space-cadet text-white py-4 rounded-2xl font-black hover:bg-slate-800 transition active:scale-95 shadow-lg tracking-widest text-[11px]">
             SIMPAN USAHA
         </button>
-
-        <a href="dashboard.php"
-            class="block text-center w-full border-2 border-space-cadet text-space-cadet py-3.5 rounded-2xl font-black hover:bg-space-cadet hover:text-white transition text-[11px] tracking-widest bg-white/50">
-            LEWATI DULU
-        </a>
     </div>
 
 </form>
         </div>
-
-        <!-- FOOTER -->
-        <div class="mt-auto mb-10 text-center relative z-20">
-            <p class="text-[11px] font-bold text-space-cadet/70">
-                Kamu bisa tambah usaha lagi nanti di dashboard
-            </p>
-        </div>
-
-        <!-- DECOR -->
+      <!-- DECOR -->
         <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-pink-lavender/40 rounded-full blur-3xl"></div>
         <div class="absolute top-1/2 -left-10 w-24 h-24 bg-cyan-azure/20 rounded-full blur-3xl"></div>
 

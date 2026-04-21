@@ -130,7 +130,12 @@ $products = $stmt_prod->get_result();
             <div class="grid grid-cols-2 gap-4" id="productList">
                 <?php if ($products->num_rows > 0) : ?>
                     <?php while ($row = $products->fetch_assoc()) : ?>
-                        <div onclick="addToCart(<?= $row['id'] ?>,'<?= htmlspecialchars($row['name']) ?>', <?= $row['sell_price'] ?>)"
+                        <div onclick="addToCart(
+                            <?= $row['id'] ?>,
+                            '<?= htmlspecialchars($row['name']) ?>',
+                            <?= $row['sell_price'] ?>,
+                            <?= $row['stock'] ?>
+                        )"
                             class="product-card bg-white rounded-[32px] overflow-hidden flex flex-col active:scale-95 transition-all shadow-sm border border-slate-100 cursor-pointer">
 
                             <div class="w-full h-32 bg-slate-100 relative">
@@ -272,12 +277,20 @@ $products = $stmt_prod->get_result();
         let cart = [];
         let total = 0;
 
-        function addToCart(id, name, price) {
+        function addToCart(id, name, price, stock) {
+    // hitung qty barang ini di cart
+    const currentQty = cart.filter(item => item.id === id).length;
+
+    if (currentQty >= stock) {
+        return;
+    }
+
     cart.push({
         id,
         name,
         price
     });
+
     updateCart();
 }
 

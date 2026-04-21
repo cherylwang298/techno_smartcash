@@ -2,6 +2,9 @@
 session_start();
 include 'db.php';
 
+include 'PagesController.php';
+$isPremium = isPremium($conn);
+
 // Proteksi Login
 $user_id = $_SESSION['user_id'] ?? null;
 if (!$user_id) {
@@ -221,6 +224,38 @@ $products = $stmt_prod->get_result();
             </div>
         </div>
 
+        <div id="premiumModal" class="hidden absolute inset-0 z-[100] flex items-center justify-center">
+
+    <!-- overlay -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <!-- modal -->
+    <div class="relative bg-white w-[85%] rounded-3xl p-6 text-center shadow-2xl">
+
+        <div class="w-16 h-16 mx-auto bg-yellow-100 text-yellow-500 rounded-2xl flex items-center justify-center text-2xl mb-4">
+            <i class="fa-solid fa-crown"></i>
+        </div>
+
+        <h2 class="font-black text-lg text-space-cadet mb-2">
+            Fitur Premium
+        </h2>
+
+        <p class="text-sm text-gray-500 mb-6">
+            Kasir hanya untuk user premium
+        </p>
+
+        <button onclick="goUpgrade()" 
+            class="w-full py-3 bg-space-cadet text-white rounded-xl font-black mb-3">
+            Upgrade Sekarang
+        </button>
+
+        <button onclick="goBack()" 
+            class="text-xs text-gray-400">
+            Kembali
+        </button>
+    </div>
+</div>
+
         <div class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 px-8 py-6 flex justify-between items-center z-50 rounded-b-[40px]">
             <a href="kasir.php" class="flex flex-col items-center text-space-cadet relative">
                 <i class="fa-solid fa-cash-register text-xl"></i>
@@ -330,6 +365,28 @@ $products = $stmt_prod->get_result();
     });
 }
     </script>
+
+<script>
+const isPremium = <?= $isPremium ? 'true' : 'false' ?>;
+</script>
+
+<script>
+window.onload = function() {
+    if (!isPremium) {
+        document.getElementById('premiumModal').classList.remove('hidden');
+
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function goUpgrade() {
+    window.location.href = "upgrade_subscription.php";
+}
+
+function goBack() {
+    window.location.href = "main_page.php";
+}
+</script>
 </body>
 
 </html>

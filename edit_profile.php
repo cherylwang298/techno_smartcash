@@ -55,6 +55,8 @@ $data = $stmt->get_result()->fetch_assoc();
 <title>Edit Profile</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
 tailwind.config = {
@@ -93,17 +95,22 @@ tailwind.config = {
 
 <body class="bg-slate-200 flex items-center justify-center min-h-screen">
 
-<div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 overflow-hidden flex flex-col">
+<!-- <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 overflow-hidden flex flex-col"> -->
+<div class="relative w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 overflow-hidden flex flex-col">
+ <a href="profile.php"
+               class="absolute top-14 left-8 text-space-cadet text-xl">
+                <i class="fa-solid fa-arrow-left text-black"></i>
+            </a>
 
     <div class="flex-1 overflow-y-auto hide-scrollbar bg-[#7D9FC0] p-6">
 
         <!-- HEADER -->
         <div class="pt-12 pb-8 flex flex-col items-center text-center">
 
-            <a href="profile.php"
+            <!-- <a href="profile.php"
                class="absolute top-14 left-8 text-space-cadet text-xl">
                 <i class="fa-solid fa-arrow-left"></i>
-            </a>
+            </a> -->
 
             <div class="relative mb-4">
                 <div class="w-24 h-24 bg-space-cadet rounded-full flex items-center justify-center text-white font-black text-4xl shadow-2xl border-4 border-white">

@@ -117,6 +117,11 @@ function formatRupiah($angka)
             alert("Transaksi berhasil dicatat!");
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+
+        function closeModal(){
+            document.getElementById('modalTransaksi').classList.remove('flex');
+            document.getElementById('modalTransaksi').classList.add('hidden');
+        }
     </script>
     <style>
         @keyframes flowAnimation {

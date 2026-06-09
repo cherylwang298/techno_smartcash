@@ -138,7 +138,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
                     <i class="fa-solid fa-chevron-right text-space-cadet/30 text-sm"></i>
                 </a>
 
-                <a href="#" class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between hover:scale-[1.02] transition transform active:scale-95 group">
+                <!-- <a href="#" class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between hover:scale-[1.02] transition transform active:scale-95 group">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-2xl bg-space-cadet text-white flex items-center justify-center shadow-lg">
                             <i class="fa-solid fa-globe text-lg"></i>
@@ -149,7 +149,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
                         </div>
                     </div>
                     <i class="fa-solid fa-chevron-right text-space-cadet/30 text-sm"></i>
-                </a>
+                </a> -->
 
                 <a href="change_password.php" class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between hover:scale-[1.02] transition transform active:scale-95 group">
                     <div class="flex items-center gap-4">

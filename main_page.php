@@ -183,6 +183,11 @@ function formatRupiah($angka) {
             alert("Transaksi berhasil dicatat!");
             window.history.replaceState({}, document.title, window.location.pathname + "?filter=" + (urlParams.get('filter') || 'bulan'));
         }
+
+        function closeModal(){
+            document.getElementById('modalTransaksi').classList.remove('flex');
+            document.getElementById('modalTransaksi').classList.add('hidden');
+        }
     </script>
     <style>
         .hide-scrollbar::-webkit-scrollbar { display: none; }

@@ -156,6 +156,5 @@
             <a href="profile.php" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a>
         </div>
     </div>
-
 </body>
 </html>

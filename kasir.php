@@ -2,6 +2,9 @@
 session_start();
 include 'db.php';
 
+include 'PagesController.php';
+$isPremium = isPremium($conn);
+
 // Proteksi Login
 $user_id = $_SESSION['user_id'] ?? null;
 if (!$user_id) {
@@ -35,7 +38,7 @@ $products = $stmt_prod->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartcash - Kasir Pro</title>
+    <title>Smartcash | Kasir </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -108,7 +111,7 @@ $products = $stmt_prod->get_result();
 
     <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-2xl border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
 
-        <div class="bg-animasi-smartcash pt-10 pb-5 px-5 relative z-30 border-b-2 border-white/50 shadow-sm">
+        <div class="bg-[#4E7AB1] pt-10 pb-5 px-5 relative z-30 border-b-2 border-white/50 shadow-sm">
             <div class="flex items-center gap-2">
                 <button class="w-10 h-10 bg-white/80 backdrop-blur-md rounded-xl flex items-center justify-center text-space-cadet shadow-sm border border-white">
                     <i class="fa-solid fa-filter text-xs"></i>
@@ -127,7 +130,12 @@ $products = $stmt_prod->get_result();
             <div class="grid grid-cols-2 gap-4" id="productList">
                 <?php if ($products->num_rows > 0) : ?>
                     <?php while ($row = $products->fetch_assoc()) : ?>
-                        <div onclick="addToCart('<?= htmlspecialchars($row['name']) ?>', <?= $row['sell_price'] ?>)"
+                        <div onclick="addToCart(
+                            <?= $row['id'] ?>,
+                            '<?= htmlspecialchars($row['name']) ?>',
+                            <?= $row['sell_price'] ?>,
+                            <?= $row['stock'] ?>
+                        )"
                             class="product-card bg-white rounded-[32px] overflow-hidden flex flex-col active:scale-95 transition-all shadow-sm border border-slate-100 cursor-pointer">
 
                             <div class="w-full h-32 bg-slate-100 relative">
@@ -194,6 +202,7 @@ $products = $stmt_prod->get_result();
 
                 <div class="flex gap-4 mb-4">
                     <button onclick="closeModal('cartModal')" class="flex-1 py-4 bg-white text-ucla-blue rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-slate-200">Batal</button>
+                    <button onclick="clearCart()" class="flex-1 py-4 bg-white text-ucla-blue rounded-2xl font-black text-[11px] uppercase tracking-widest border-2 border-slate-200">Clear</button>
                     <button onclick="openPayment()" class="flex-1 py-4 bg-space-cadet text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl">Proses</button>
                 </div>
             </div>
@@ -220,6 +229,68 @@ $products = $stmt_prod->get_result();
             </div>
         </div>
 
+        
+                   <div id="successPopup" class="hidden absolute inset-0 z-[999] flex items-center justify-center">
+    <!-- overlay -->
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <!-- popup -->
+    <div class="relative bg-white w-[85%] rounded-3xl p-6 text-center shadow-2xl animate-scaleIn">
+        
+        <div class="w-16 h-16 mx-auto bg-green-100 text-green-500 rounded-2xl flex items-center justify-center text-2xl mb-4">
+            <i class="fa-solid fa-check"></i>
+        </div>
+
+        <h2 class="font-black text-lg text-space-cadet mb-2">
+            Transaksi Berhasil!
+        </h2>
+
+        <p id="successText" class="text-sm text-gray-500 mb-6">
+            <!-- nanti diisi dari JS -->
+        </p>
+
+        <button onclick="goToMain()" 
+            class="w-full py-3 bg-space-cadet text-white rounded-xl font-black">
+            OK
+        </button>
+    </div>
+</div>
+
+
+        <div id="premiumModal" class="hidden absolute inset-0 z-[100] flex items-center justify-center">
+
+    <!-- overlay -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <!-- modal -->
+    <div class="relative bg-white w-[85%] rounded-3xl p-6 text-center shadow-2xl">
+
+        <div class="w-16 h-16 mx-auto bg-yellow-100 text-yellow-500 rounded-2xl flex items-center justify-center text-2xl mb-4">
+            <i class="fa-solid fa-crown"></i>
+        </div>
+
+        <h2 class="font-black text-lg text-space-cadet mb-2">
+            Fitur Premium
+        </h2>
+
+        <p class="text-sm text-gray-500 mb-6">
+            Kasir hanya untuk user premium
+        </p>
+
+        <button onclick="goUpgrade()" 
+            class="w-full py-3 bg-space-cadet text-white rounded-xl font-black mb-3">
+            Upgrade Sekarang
+        </button>
+
+        <button onclick="goBack()" 
+            class="text-xs text-gray-400">
+            Kembali
+        </button>
+    </div>
+</div>
+
+
+
         <div class="absolute bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-100 px-8 py-6 flex justify-between items-center z-50 rounded-b-[40px]">
             <a href="kasir.php" class="flex flex-col items-center text-space-cadet relative">
                 <i class="fa-solid fa-cash-register text-xl"></i>
@@ -236,13 +307,23 @@ $products = $stmt_prod->get_result();
         let cart = [];
         let total = 0;
 
-        function addToCart(name, price) {
-            cart.push({
-                name,
-                price
-            });
-            updateCart();
-        }
+        function addToCart(id, name, price, stock) {
+    // hitung qty barang ini di cart
+    const currentQty = cart.filter(item => item.id === id).length;
+
+    if (currentQty >= stock) {
+
+        return;
+    }
+
+    cart.push({
+        id,
+        name,
+        price
+    });
+
+    updateCart();
+}
 
         function updateCart() {
             total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -292,15 +373,97 @@ $products = $stmt_prod->get_result();
             document.getElementById('paymentModal').classList.remove('hidden');
         }
 
+        function clearCart()
+            {
+                cart = [];
+                updateCart();
+            }
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
         }
 
-        function successFinish(method) {
-            alert('Transaksi ' + method + ' Berhasil! Total: Rp ' + total.toLocaleString('id-ID'));
-            window.location.href = 'main_page.php';
+        // function successFinish(method) {
+        //     alert('Transaksi ' + method + ' Berhasil! Total: Rp ' + total.toLocaleString('id-ID'));
+        //     window.location.href = 'main_page.php';
+     //}
+
+//      function successFinish(method) {
+//     fetch('transaksi_kasir.php', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//             cart: cart,
+//             method: method
+//         })
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Transaksi berhasil! Total: Rp ' + total.toLocaleString('id-ID'));
+//             window.location.href = 'main_page.php';
+//         } else {
+//             alert('Gagal: ' + data.message);
+//         }
+//     });
+// }
+
+
+function successFinish(method) {
+    fetch('transaksi_kasir.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            cart: cart,
+            method: method
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+
+            // isi text popup
+            document.getElementById('successText').innerText =
+                'Pembayaran ' + method + ' berhasil.\nTotal: Rp ' + total.toLocaleString('id-ID');
+
+            // tampilkan popup
+            document.getElementById('successPopup').classList.remove('hidden');
+
+        } else {
+            alert('Gagal: ' + data.message);
         }
+    });
+}
+
+function goToMain() {
+    window.location.href = 'main_page.php';
+}
     </script>
+
+<script>
+const isPremium = <?= $isPremium ? 'true' : 'false' ?>;
+</script>
+
+<script>
+window.onload = function() {
+    if (!isPremium) {
+        document.getElementById('premiumModal').classList.remove('hidden');
+
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function goUpgrade() {
+    window.location.href = "upgrade_subscription.php";
+}
+
+function goBack() {
+    window.location.href = "main_page.php";
+}
+</script>
 </body>
 
 </html>

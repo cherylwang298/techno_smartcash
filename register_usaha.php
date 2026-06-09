@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartcash - Daftar Usaha</title>
+    <title>Smartcash | Pendaftaran Usaha</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -56,7 +56,7 @@
         <!-- HEADER -->
         <div class="flex flex-col items-center mt-6 mb-6">
             <h2 class="text-3xl font-black tracking-tighter text-space-cadet">DAFTAR USAHA</h2>
-            <p class="text-[11px] font-bold text-ucla-blue/70 uppercase tracking-widest mt-1 text-center">
+            <p class="text-[11px] font-bold text-white/90 uppercase tracking-widest mt-1 text-center">
                 Kelola bisnismu lebih cerdas
             </p>
         </div>
@@ -162,7 +162,6 @@
 
 </form>
         </div>
-      <!-- DECOR -->
         <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-pink-lavender/40 rounded-full blur-3xl"></div>
         <div class="absolute top-1/2 -left-10 w-24 h-24 bg-cyan-azure/20 rounded-full blur-3xl"></div>
 

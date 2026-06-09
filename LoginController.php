@@ -3,7 +3,7 @@ session_start();
 include 'db.php';
 
 if (isset($_POST['login'])) {
-    $phone = $conn->real_escape_string($_POST['phone']); // Tambahkan escape biar aman
+    $phone = $conn->real_escape_string($_POST['phone']); 
     $password = $_POST['password'];
 
     $sql = "SELECT * FROM users WHERE phone = '$phone' LIMIT 1";
@@ -14,17 +14,15 @@ if (isset($_POST['login'])) {
 
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['fullname'] = $user['fullname']; // Pastikan nama kolom sesuai (fullname)
+            $_SESSION['fullname'] = $user['fullname']; 
 
             header("Location: main_page.php");
             exit();
         } else {
-            // Balik ke login.php dengan pesan error password
             header("Location: login.php?error=password");
             exit();
         }
     } else {
-        // Balik ke login.php dengan pesan error user tidak ketemu
         header("Location: login.php?error=notfound");
         exit();
     }

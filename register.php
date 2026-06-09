@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartcash - Buat Akun</title>
+    <title>Smartcash - Daftar</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -66,8 +66,10 @@
 
             <div class="flex flex-col items-center mb-8">
                 <h2 class="text-3xl font-black tracking-tighter text-space-cadet uppercase">Buat Akun</h2>
-                <p class="text-[11px] font-bold text-ucla-blue/70 uppercase tracking-widest mt-1 text-center">Mulai kelola keuanganmu sekarang</p>
+                <p class="text-[11px] font-bold text-white/80 uppercase tracking-widest mt-1 text-center">Mulai kelola keuanganmu sekarang</p>
             </div>
+
+            <!-- text-ucla-blue/70 -->
 
             <div class="glass-form rounded-[35px] p-6 shadow-2xl relative z-10">
                 <form action="RegistrationController.php" method="POST" class="space-y-3.5">

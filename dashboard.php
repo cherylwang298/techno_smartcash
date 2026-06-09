@@ -38,14 +38,12 @@ tailwind.config = {
 
 <div class="w-[360px] h-[780px] bg-white rounded-[40px] shadow-xl overflow-hidden relative">
 
-    <!-- 🔥 HEADER -->
     <div class="bg-primary text-white p-5 text-center">
         <h1 class="font-bold text-lg">
             <?php echo $usaha ? $usaha : "Nama Usaha"; ?>
         </h1>
     </div>
 
-    <!-- 🔥 SCROLLABLE CONTENT -->
     <div class="absolute top-[80px] bottom-[70px] left-0 right-0 overflow-y-auto px-4 py-3 space-y-4">
 
         <!-- FILTER -->
@@ -126,7 +124,7 @@ tailwind.config = {
 
     </div>
 
-    <!-- 🔥 FIXED NAVBAR -->
+  
     <div class="absolute bottom-0 left-0 right-0 bg-white border-t flex justify-around py-3 text-xs shadow-inner">
 
         <div class="text-center text-gray-400">
@@ -153,7 +151,7 @@ tailwind.config = {
 
 </div>
 
-<!-- 🔥 DONUT CHART -->
+
 <script>
 const ctx = document.getElementById('donutChart');
 

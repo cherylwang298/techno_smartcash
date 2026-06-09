@@ -154,7 +154,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
                             <i class="fa-solid fa-crown text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="text-base font-black text-pink-lavender leading-tight">SmartCash Premium</h3>
+                            <h3 class="text-base font-black text-pink-lavender leading-tight">SimplyCash Premium</h3>
                             <p class="text-xs text-white/70 font-bold mt-0.5">Klik untuk berlangganan</p>
                         </div>
                     </div>
@@ -180,15 +180,32 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
             </div>
         </div>
 
-        <div class="absolute bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-100 px-6 py-5 flex justify-between items-center z-40 rounded-b-[40px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        <!-- <div class="absolute bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-100 px-6 py-5 flex justify-between items-center z-40 rounded-b-[40px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
             <a href="kasir.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-cash-register text-xl mb-1"></i><span class="text-[10px] font-bold">Kasir</span></a>
             <a href="main_page.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-house text-xl mb-1"></i><span class="text-[10px] font-bold">Beranda</span></a>
             <a href="stok.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-box text-xl mb-1"></i><span class="text-[10px] font-bold">Stok</span></a>
-            <a href="profile.php" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a>
-        
-            
-        
-        
+            <a href="profile.php" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a> 
+        </div> -->
+
+          <div
+            class="absolute bottom-0 w-full bg-white px-8 py-6 flex justify-between items-center z-50 rounded-b-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-slate-100">
+            <a href="kasir.php" class="flex flex-col items-center text-ucla-blue/30 hover:text-space-cadet transition">
+                <i class="fa-solid fa-cash-register text-xl"></i>
+                <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Kasir</span>
+            </a>
+            <a href="main_page.php" class="flex flex-col items-center text-ucla-blue/30 hover:text-space-cadet transition">
+                <i class="fa-solid fa-house-chimney text-xl"></i>
+                <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Beranda</span>
+            </a>
+            <a href="stok.php" class="flex flex-col items-center text-ucla-blue/30 hover:text-space-cadet transition">
+                <i class="fa-solid fa-box text-xl"></i>
+                <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Stok</span>
+            </a>
+            <a href="profile.php" class="flex flex-col items-center text-space-cadet relative">
+                <i class="fa-solid fa-circle-user text-xl"></i>
+                <span class="text-[9px] font-black mt-1.5 uppercase tracking-widest">Profil</span>
+                <div class="absolute -bottom-2 w-1.5 h-1.5 bg-space-cadet rounded-full"></div>
+            </a>
         </div>
 
         <!-- HELP BUTTON (INSIDE PHONE) -->
@@ -251,8 +268,8 @@ function closeHelp() {
 }
 
 function contactWA() {
-    const phone = "6281234567890"; // ganti
-    const message = "Halo Admin SmartCash, saya butuh bantuan 🙏";
+    const phone = "6281335517865"; // ganti
+    const message = "Halo Admin SimplyCash, saya butuh bantuan";
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
 }
 

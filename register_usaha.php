@@ -56,7 +56,7 @@
         <!-- HEADER -->
         <div class="flex flex-col items-center mt-6 mb-6">
             <h2 class="text-3xl font-black tracking-tighter text-space-cadet">DAFTAR USAHA</h2>
-            <p class="text-[11px] font-bold text-ucla-blue/70 uppercase tracking-widest mt-1 text-center">
+            <p class="text-[11px] font-bold text-white/90 uppercase tracking-widest mt-1 text-center">
                 Kelola bisnismu lebih cerdas
             </p>
         </div>

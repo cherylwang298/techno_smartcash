@@ -319,7 +319,7 @@ function formatRupiah($angka)
             </a>
         </div>
 
-        <div id="modalTransaksi" class="fixed inset-0 bg-space-cadet/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-6">
+        <div id="modalTransaksi" class="absolute inset-0 bg-space-cadet/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-6">
             <div class="bg-white w-full max-w-[320px] rounded-[40px] p-8 shadow-2xl relative animate-in fade-in zoom-in duration-300">
 
                 <h2 id="modalTitle" class="font-black text-space-cadet mb-6 uppercase tracking-widest text-center">Tambah Transaksi</h2>

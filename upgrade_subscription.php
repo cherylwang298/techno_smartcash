@@ -22,7 +22,7 @@ $subscription = $user['subscription'] ?? 'free';
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartCash | Premium</title>
+<title>SimplyCash | Premium</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -96,7 +96,7 @@ tailwind.config = {
                 </h1>
 
                 <p class="text-sm text-space-cadet/70 mt-2">
-                    Buka semua fitur SmartCash Premium
+                    Buka semua fitur SimplyCash Premium
                 </p>
             </div>
         </div>
@@ -111,7 +111,7 @@ tailwind.config = {
 
             <div class="flex items-center gap-3">
                 <i class="fa-solid fa-check text-green-500"></i>
-                <span class="font-bold text-sm">Produk Terlaris</span>
+                <span class="font-bold text-sm">Insight Bisnis</span>
             </div>
 
             <!-- soon nambah: download ke pdf -->
@@ -122,7 +122,7 @@ tailwind.config = {
             <?php if ($subscription === 'premium'): ?>
 
                 <div class="text-center text-space-cadet font-black text-lg">
-                    Kamu sudah Berlangganan SmartCash Premium
+                    Kamu sudah Berlangganan SimplyCash Premium
                 </div>
 
             <?php else: ?>
@@ -150,7 +150,7 @@ tailwind.config = {
                 Pilih Metode Pembayaran
             </h3>
             <p class="text-center text-xs text-gray-400 mb-5">
-                Upgrade ke SmartCash Premium
+                Upgrade ke SimplyCash Premium
             </p>
 
             <div class="space-y-3">

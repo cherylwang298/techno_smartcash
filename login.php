@@ -72,11 +72,11 @@
     <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 relative overflow-hidden flex flex-col bg-animasi-smartcash p-8">
 
         <div class="flex flex-col items-center mt-8 mb-8">
-            <div class="w-16 h-16 bg-space-cadet rounded-[20px] mb-3 flex items-center justify-center text-white font-black text-3xl shadow-2xl rotate-3">
-                S
+            <div class="w-24 h-24 rounded-[20px] flex items-center justify-center text-white font-black text-3xl rotate-3">
+                <img src="uploads/logos/sc_logo.png" >
             </div>
-            <h2 class="text-3xl font-black tracking-tighter text-space-cadet italic">SMARTCASH</h2>
-            <p class="text-[10px] font-bold text-ucla-blue/80 uppercase tracking-[0.2em]">Finance Assistant</p>
+            <h2 class="text-3xl font-black tracking-tighter text-space-cadet italic">SIMPLYCASH</h2>
+            <p class="text-[10px] font-bold text-white/90 uppercase tracking-[0.2em]">Finance Assistant</p>
         </div>
 
         <div class="glass-form rounded-[35px] p-7 shadow-2xl relative z-10">

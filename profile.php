@@ -37,6 +37,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
     <title>Smartcash - Profil Kelihatan Jelas</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         tailwind.config = {
@@ -52,8 +53,9 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
                     }
                 }
             }
-        }
+        }   
     </script>
+    
     <style>
         @keyframes flowAnimation {
             0% { background-position: 0% 50%; }
@@ -134,7 +136,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
                     <i class="fa-solid fa-chevron-right text-space-cadet/30 text-sm"></i>
                 </a>
 
-                <a href="#" class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between hover:scale-[1.02] transition transform active:scale-95 group">
+                <a href="change_password.php" class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between hover:scale-[1.02] transition transform active:scale-95 group">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-2xl bg-space-cadet text-white flex items-center justify-center shadow-lg">
                             <i class="fa-solid fa-lock text-lg"></i>
@@ -252,9 +254,39 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
     </div>
 </div>
 
+<div id="passwordSuccessModal"
+     class="<?= (isset($_GET['password']) && $_GET['password'] === 'success') ? '' : 'hidden' ?> absolute inset-0 z-[80] flex items-center justify-center">
+
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <div class="relative bg-white w-[80%] rounded-3xl p-6 text-center shadow-2xl">
+
+        <div class="w-16 h-16 mx-auto bg-green-100 text-green-500 rounded-full flex items-center justify-center text-2xl mb-4">
+            <i class="fa-solid fa-check"></i>
+        </div>
+
+        <h3 class="font-black text-lg text-space-cadet mb-2">
+            Password Berhasil Diubah
+        </h3>
+
+        <p class="text-sm text-gray-500 mb-5">
+            Password akun Anda telah berhasil diperbarui.
+        </p>
+
+        <button onclick="closePasswordSuccess()"
+                class="w-full py-3 bg-space-cadet text-white rounded-xl font-bold">
+            OK
+        </button>
+
+    </div>
+</div>
+
         
     </div>
 
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 function openHelp() {
@@ -268,7 +300,7 @@ function closeHelp() {
 }
 
 function contactWA() {
-    const phone = "6281335517865"; // ganti
+    const phone = "6281335517865";
     const message = "Halo Admin SimplyCash, saya butuh bantuan";
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
 }
@@ -276,6 +308,32 @@ function contactWA() {
 function contactEmail() {
     window.location.href = "mailto:admin@smartcash.com?subject=Bantuan SmartCash";
 }
+</script>
+
+<script>
+function closePasswordSuccess() {
+    document.getElementById('passwordSuccessModal')
+        .classList.add('hidden');
+
+    window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname
+    );
+}
+</script>
+<!-- 
+
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Password Berhasil Diubah!',
+    text: 'Password akun Anda telah berhasil diperbarui.',
+    confirmButtonColor: '#102B53',
+    confirmButtonText: 'Mantap'
+}).then(() => {
+    window.history.replaceState({}, document.title, window.location.pathname);
+});
 </script>
 
 </body>

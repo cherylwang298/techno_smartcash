@@ -1,4 +1,11 @@
 <?php
+
+// echo "MASUK PROSES_STOK";
+// echo "<pre>";
+// print_r($_POST);
+// print_r($_FILES);
+// exit;
+
 session_start();
 include 'db.php';
 
@@ -29,12 +36,104 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    if ($action == 'add') {
-        $sql = "INSERT INTO products (business_id, name, category, buy_price, sell_price, stock, image_path) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("issddis", $biz_id, $name, $category, $buy_price, $sell_price, $stock, $image_path);
+  if ($action == 'add') {
+//     var_dump($_POST['action_type']);
+// exit;
+
+    $sql = "INSERT INTO products
+            (business_id, name, category, buy_price, sell_price, stock, image_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param(
+        "issddis",
+        $biz_id,
+        $name,
+        $category,
+        $buy_price,
+        $sell_price,
+        $stock,
+        $image_path
+    );
+
+    if (!$stmt->execute()) {
+        die("Error: " . $stmt->error);
+    }
+
+    // Catat pengeluaran pembelian stok
+    $nominal_pengeluaran = $buy_price * $stock;
+    $keterangan = "Pembelian stok awal: " . $name;
+
+    $sql_trans = "
+        INSERT INTO transactions
+        (business_id, type, nominal, description, created_at)
+        VALUES (?, 'Pengeluaran', ?, ?, NOW())
+    ";
+
+    $stmt_trans = $conn->prepare($sql_trans);
+    $stmt_trans->bind_param(
+        "ids",
+        $biz_id,
+        $nominal_pengeluaran,
+        $keterangan
+    );
+
+    // $stmt_trans->execute();
+    if (!$stmt_trans->execute()) {
+    die("Error transaksi: " . $stmt_trans->error);
+}
+
+    header("Location: stok.php?status=success");
+    exit;
+
     } else {
+
+        $getOld = $conn->prepare("
+        SELECT stock
+        FROM products
+        WHERE id = ? AND business_id = ?
+        ");
+        $getOld->bind_param("ii", $product_id, $biz_id);
+        $getOld->execute();
+
+        $oldData = $getOld->get_result()->fetch_assoc();
+
+        $oldStock = $oldData['stock'];
+        $newStock = $stock;
+
+        if ($newStock > $oldStock) {
+
+    $selisih = $newStock - $oldStock;
+
+    $nominal_pengeluaran = $selisih * $buy_price;
+
+    $keterangan = "Restock produk: " . $name;
+
+    $stmt_trans = $conn->prepare("
+        INSERT INTO transactions
+        (
+            business_id,
+            product_id,
+            qty,
+            type,
+            nominal,
+            description
+        )
+        VALUES (?, ?, ?, 'Pengeluaran', ?, ?)
+    ");
+
+    $stmt_trans->bind_param(
+        "iiids",
+        $biz_id,
+        $product_id,
+        $selisih,
+        $nominal_pengeluaran,
+        $keterangan
+    );
+
+    $stmt_trans->execute();
+}
+
         if ($image_path) {
             // Jika ganti foto
             $sql = "UPDATE products SET name=?, category=?, buy_price=?, sell_price=?, stock=?, image_path=? WHERE id=? AND business_id=?";
@@ -54,3 +153,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     exit;
 }
+

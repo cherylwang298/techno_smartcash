@@ -230,7 +230,7 @@ function formatRupiah($angka) {
         </div>
         
         <div class="mt-12 text-center text-xs text-slate-400 border-t pt-4">
-            Dokumen ini dicetak secara otomatis oleh Sistem SMARTCASH pada <?= date('d F Y, H:i') ?> WIB.
+            Dokumen ini dicetak secara otomatis oleh Sistem SimplyCash pada <?= date('d F Y, H:i') ?> WIB.
         </div>
     </div>
 
@@ -247,6 +247,7 @@ function formatRupiah($angka) {
                         backgroundColor: '#4E7AB1',
                         borderRadius: 4,
                     },
+                    // check
                     {
                         label: 'Pengeluaran (Modal / Operasional)',
                         data: <?= json_encode(array_values($chart_out)) ?>,

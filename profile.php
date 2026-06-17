@@ -9,13 +9,40 @@ if (!$user_id) {
     exit;
 }
 
+// ─── LOGIKA UPLOAD FOTO PROFIL ──────────────────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['logo'])) {
+    $target_dir = "uploads/logos/";
+    if (!is_dir($target_dir)) { mkdir($target_dir, 0777, true); }
+    
+    $file_extension = strtolower(pathinfo($_FILES["logo"]["name"], PATHINFO_EXTENSION));
+    $new_filename = "logo_biz_" . $user_id . "_" . time() . "." . $file_extension;
+    $target_file = $target_dir . $new_filename;
+    
+    $allowed_types = ['jpg', 'jpeg', 'png', 'webp'];
+    if (in_array($file_extension, $allowed_types)) {
+        if (move_uploaded_file($_FILES["logo"]["tmp_name"], $target_file)) {
+            $update_sql = "UPDATE businesses SET logo = ? WHERE user_id = ?";
+            $stmt_update = $conn->prepare($update_sql);
+            $stmt_update->bind_param("si", $target_file, $user_id);
+            $stmt_update->execute();
+            header("Location: profile.php?upload=success");
+            exit;
+        } else {
+            $upload_error = "Gagal menyimpan foto ke server.";
+        }
+    } else {
+        $upload_error = "Format file tidak didukung. Gunakan JPG, PNG, atau WEBP.";
+    }
+}
+
+// Ambil data user & bisnis
 $sql_user = "SELECT fullname, subscription FROM users WHERE id = ?";
 $stmt = $conn->prepare($sql_user);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 
-$sql_biz = "SELECT business_name, address, city FROM businesses WHERE user_id = ? LIMIT 1";
+$sql_biz = "SELECT business_name, address, city, logo FROM businesses WHERE user_id = ? LIMIT 1";
 $stmt2 = $conn->prepare($sql_biz);
 $stmt2->bind_param("i", $user_id);
 $stmt2->execute();
@@ -24,33 +51,37 @@ $biz = $stmt2->get_result()->fetch_assoc();
 $nama_toko = $biz['business_name'] ?? "Toko Saya";
 $alamat = $biz['address'] ?? "Alamat belum diatur";
 $city = $biz['city'] ?? "";
+$logo = $biz['logo'] ?? null;
 $subscription = $user['subscription'] ?? "free";
 
 $initial = strtoupper(substr($nama_toko, 0, 1));
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smartcash - Profil Kelihatan Jelas</title>
+    <title>Smartcash - Profil</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        serif: ['Quicksand', 'serif'],
+                    },
                     colors: {
                         'space-cadet': '#102B53',
                         'ucla-blue': '#50698D',
                         'pink-lavender': '#CEB5D4',
                         'cyan-azure': '#4E7AB1',
-                        'air-blue': '#7D9FC0',
-                        'yellow-gold': '#e7d3b0',
+                        'air-blue': '#7D9FC0'
                     }
                 }
             }
@@ -58,297 +89,328 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
     </script>
 
     <style>
-        @keyframes flowAnimation {
-            0% {
-                background-position: 0% 50%;
-            }
+        * { font-family: 'Nunito', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+        /* DREAMY FLUID BACKGROUND */
+        .dreamy-bg {
+            background-color: #fdfdfd;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(206,181,212,0.35) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(125,159,192,0.25) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(78,122,177,0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(206,181,212,0.3) 0px, transparent 50%);
         }
 
-        .bg-animasi-smartcash {
-            background: linear-gradient(-45deg, #FFFFFF, #CEB5D4, #e7d3b0, #FFFFFF);
-            background-size: 400% 400%;
-            animation: flowAnimation 15s ease infinite;
+        /* FLOATING ORBS ANIMATION */
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px) scale(1); }
+            33% { transform: translateY(-20px) translateX(15px) scale(1.05); }
+            66% { transform: translateY(15px) translateX(-15px) scale(0.95); }
+            100% { transform: translateY(0px) translateX(0px) scale(1); }
+        }
+        .orb { position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.5; z-index: 0; }
+        .orb-1 { width: 160px; height: 160px; background: #CEB5D4; top: -5%; left: -20%; animation: float 8s ease-in-out infinite; }
+        .orb-2 { width: 180px; height: 180px; background: #7D9FC0; top: 40%; right: -20%; animation: float 10s ease-in-out infinite reverse; }
+        .orb-3 { width: 140px; height: 140px; background: #4E7AB1; bottom: 5%; left: 10%; animation: float 7s ease-in-out infinite 1s; opacity: 0.3; }
+
+        /* PHONE SHELL BORDER */
+        .phone-shell {
+            border: 12px solid #102B53;
+            border-radius: 56px;
+            box-shadow: 0 40px 100px rgba(16,43,83,0.25);
         }
 
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
+        /* GLASSMORPHISM CARDS */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px rgba(80, 105, 141, 0.08);
+            border-radius: 26px;
+            transition: all 0.3s ease;
+        }
+        .glass-card:active { transform: scale(0.97); }
+
+        .glass-card-sm {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 15px rgba(80, 105, 141, 0.05);
+            border-radius: 999px;
         }
 
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        /* TEXT GRADIENT */
+        .text-gradient {
+            background: linear-gradient(135deg, #102B53 0%, #4E7AB1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .glass-card-clear {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.6);
+        /* NAVBAR (Floating Glass) */
+        .navbar-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 40px rgba(16, 43, 83, 0.12);
+            border-radius: 999px;
         }
+
+        .nav-item { transition: all 0.3s ease; }
+        .nav-item.active { background: linear-gradient(135deg, rgba(206,181,212,0.25) 0%, rgba(78,122,177,0.15) 100%); border-radius: 999px; }
+        .nav-item.active .nav-icon { color: #4E7AB1; }
+        .nav-item.active .nav-label { color: #102B53; font-weight: 800; }
+        .nav-icon { color: #7D9FC0; font-size: 16px; transition: color 0.3s; }
+        .nav-label { font-size: 9px; font-weight: 700; color: #7D9FC0; letter-spacing: 0.02em; transition: color 0.3s; }
+
+        /* CUSTOM SWEETALERT BUTTON */
+        .swal-gradient-btn {
+            background: linear-gradient(135deg, #4E7AB1 0%, #CEB5D4 100%) !important;
+            color: white !important;
+            border-radius: 999px !important;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 16px 42px !important;
+            box-shadow: 0 10px 25px rgba(206, 181, 212, 0.5) !important;
+            border: none !important;
+            outline: none !important;
+            transition: all 0.2s ease;
+        }
+        .swal-gradient-btn:active { transform: scale(0.96) !important; }
+
+        /* FLOATING HELPER BUTTON ANIMATION */
+        @keyframes float-helper {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float-helper { animation: float-helper 3s ease-in-out infinite; }
     </style>
 </head>
 
-<body class="bg-slate-200 flex items-center justify-center min-h-screen">
+<body class="bg-slate-100 flex items-center justify-center min-h-screen py-5">
 
-    <div class="w-[360px] h-[740px] bg-white rounded-[50px] shadow-[0_20px_60px_rgba(0,0,0,0.2)] border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
+    <div class="w-[360px] h-[740px] phone-shell dreamy-bg relative overflow-hidden flex flex-col">
 
-        <div class="flex-1 overflow-y-auto pb-28 hide-scrollbar bg-[#7D9FC0] p-6">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
 
-            <div class="pt-12 pb-10 flex flex-col items-center text-center">
-                <div class="relative mb-4">
-                    <div class="w-24 h-24 bg-space-cadet rounded-full flex items-center justify-center text-white font-black text-4xl shadow-2xl border-4 border-white">
-                        <?= $initial ?>
-                    </div>
-                    <button class="absolute bottom-0 right-0 bg-pink-lavender text-space-cadet w-8 h-8 rounded-full flex items-center justify-center border-2 border-white shadow-lg">
-                        <i class="fa-solid fa-camera text-xs"></i>
+        <div class="flex-1 overflow-y-auto pb-32 hide-scrollbar px-6 relative z-10">
+
+            <div class="pt-14 pb-6 flex flex-col items-center text-center">
+                
+                <form action="" method="POST" enctype="multipart/form-data" id="logoForm" class="relative mb-5 inline-block group">
+                    <?php if (!empty($logo) && file_exists($logo)): ?>
+                        <img src="<?= htmlspecialchars($logo) ?>" alt="Logo Toko" class="w-[110px] h-[110px] rounded-full object-cover shadow-[0_15px_30px_rgba(80,105,141,0.25)] border-[4px] border-white group-hover:scale-105 transition-transform duration-300">
+                    <?php else: ?>
+                        <div class="w-[110px] h-[110px] rounded-full flex items-center justify-center text-cyan-azure font-serif font-black text-5xl bg-gradient-to-br from-white to-pink-lavender/30 shadow-[0_15px_30px_rgba(206,181,212,0.3)] border-[4px] border-white group-hover:scale-105 transition-transform duration-300">
+                            <?= $initial ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <input type="file" name="logo" id="logoInput" class="hidden" accept="image/jpeg, image/png, image/webp" onchange="document.getElementById('logoForm').submit();">
+
+                    <button type="button" onclick="document.getElementById('logoInput').click();" class="absolute bottom-0 right-0 bg-gradient-to-br from-cyan-azure to-pink-lavender text-white w-10 h-10 rounded-full flex items-center justify-center border-[3px] border-white shadow-[0_4px_15px_rgba(206,181,212,0.6)] hover:scale-110 active:scale-90 transition-transform">
+                        <i class="fa-solid fa-camera text-sm"></i>
                     </button>
-                </div>
+                </form>
 
-                <h1 class="text-2xl font-black text-space-cadet tracking-tight leading-none"><?= htmlspecialchars($nama_toko) ?></h1>
-                <p class="text-sm text-space-cadet/80 font-bold mt-2">
-                    <i class="fa-solid fa-location-dot mr-1"></i>
+                <h1 class="text-[24px] font-serif font-black text-space-cadet tracking-tight leading-none mb-2"><?= htmlspecialchars($nama_toko) ?></h1>
+                <p class="text-[12px] text-ucla-blue font-bold">
+                    <i class="fa-solid fa-location-dot mr-1 text-pink-lavender"></i>
                     <?= htmlspecialchars($alamat . ', ' . $city) ?>
                 </p>
 
-                <div class="mt-5 px-5 py-2 bg-space-cadet rounded-full flex items-center gap-2 shadow-xl border border-white/20">
-                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_#4ade80]"></div>
-                    <span class="text-xs font-black text-white uppercase tracking-widest"> <?= strtoupper($subscription) ?> USER</span>
+                <div class="mt-4 px-5 py-3 glass-card-sm flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 bg-[#5BBFA3] rounded-full animate-pulse shadow-[0_0_8px_rgba(91,191,163,0.8)]"></div>
+                    <span class="text-[11px] font-black text-space-cadet uppercase tracking-widest"> <?= strtoupper($subscription) ?> USER</span>
                 </div>
             </div>
 
             <div class="space-y-4">
-                <a href="edit_profile.php" class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between hover:scale-[1.02] transition transform active:scale-95 group">
+                
+                <a href="edit_profile.php" class="glass-card w-full p-5 flex items-center justify-between group hover:border-pink-lavender/50 hover:bg-white/80 transition-colors">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-space-cadet text-white flex items-center justify-center shadow-lg">
+                        <div class="w-12 h-12 rounded-[20px] bg-gradient-to-br from-cyan-azure to-[#81A4CD] text-white flex items-center justify-center shadow-[0_4px_15px_rgba(78,122,177,0.3)]">
                             <i class="fa-solid fa-user-pen text-lg"></i>
                         </div>
-                        <div>
-                            <h3 class="text-base font-black text-space-cadet leading-tight">Edit Profile</h3>
-                            <p class="text-xs text-space-cadet/70 font-bold mt-0.5">Ubah data & kategori bisnis</p>
+                        <div class="text-left">
+                            <h3 class="text-[14px] font-black text-space-cadet leading-tight">Edit Profile</h3>
+                            <p class="text-[10px] font-bold text-air-blue mt-1">Ubah data & kategori bisnis</p>
                         </div>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-space-cadet/30 text-sm"></i>
+                    <i class="fa-solid fa-chevron-right text-air-blue text-sm group-hover:text-cyan-azure transition-colors"></i>
                 </a>
 
-                <!-- <a href="#" class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between hover:scale-[1.02] transition transform active:scale-95 group">
+                <a href="change_password.php" class="glass-card w-full p-5 flex items-center justify-between group hover:border-pink-lavender/50 hover:bg-white/80 transition-colors">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-space-cadet text-white flex items-center justify-center shadow-lg">
-                            <i class="fa-solid fa-globe text-lg"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-base font-black text-space-cadet leading-tight">Bahasa</h3>
-                            <p class="text-xs text-space-cadet/70 font-bold mt-0.5">Indonesia (Default)</p>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-space-cadet/30 text-sm"></i>
-                </a> -->
-
-                <a href="change_password.php" class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between hover:scale-[1.02] transition transform active:scale-95 group">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-space-cadet text-white flex items-center justify-center shadow-lg">
+                        <div class="w-12 h-12 rounded-[20px] bg-gradient-to-br from-ucla-blue to-air-blue text-white flex items-center justify-center shadow-[0_4px_15px_rgba(80,105,141,0.3)]">
                             <i class="fa-solid fa-lock text-lg"></i>
                         </div>
-                        <div>
-                            <h3 class="text-base font-black text-space-cadet leading-tight">Keamanan</h3>
-                            <p class="text-xs text-space-cadet/70 font-bold mt-0.5">Ubah password akun</p>
+                        <div class="text-left">
+                            <h3 class="text-[14px] font-black text-space-cadet leading-tight">Keamanan</h3>
+                            <p class="text-[10px] font-bold text-air-blue mt-1">Ubah password akun</p>
                         </div>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-space-cadet/30 text-sm"></i>
+                    <i class="fa-solid fa-chevron-right text-air-blue text-sm group-hover:text-cyan-azure transition-colors"></i>
                 </a>
 
-                <a href="upgrade_subscription.php" class="w-full bg-space-cadet p-5 rounded-[24px] flex items-center justify-between shadow-2xl mt-6 relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
+                <a href="upgrade_subscription.php" class="w-full bg-gradient-to-r from-ucla-blue to-space-cadet p-5 rounded-[28px] flex items-center justify-between shadow-[0_15px_30px_rgba(16,43,83,0.3)] mt-6 relative overflow-hidden group active:scale-[0.97] transition-transform">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
                     <div class="flex items-center gap-4 relative z-10">
-                        <div class="w-12 h-12 rounded-2xl bg-pink-lavender text-space-cadet flex items-center justify-center shadow-inner">
+                        <div class="w-12 h-12 rounded-[20px] bg-gradient-to-br from-pink-lavender to-[#e1ccdb] text-space-cadet flex items-center justify-center shadow-inner">
                             <i class="fa-solid fa-crown text-xl"></i>
                         </div>
-                        <div>
-                            <h3 class="text-base font-black text-pink-lavender leading-tight">SimplyCash Premium</h3>
-                            <p class="text-xs text-white/70 font-bold mt-0.5">Klik untuk berlangganan</p>
+                        <div class="text-left">
+                            <h3 class="text-[15px] font-black text-pink-lavender leading-tight tracking-wide">SimplyCash Premium</h3>
+                            <p class="text-[10px] font-bold text-air-blue mt-1">Klik untuk berlangganan</p>
                         </div>
                     </div>
-                    <i class="fa-solid fa-arrow-right-long text-pink-lavender/40 text-lg relative z-10"></i>
+                    <i class="fa-solid fa-arrow-right-long text-pink-lavender text-sm relative z-10 mr-1 group-hover:translate-x-1 transition-transform"></i>
                 </a>
 
-                <a href="LogoutController.php"
-                    class="glass-card-clear w-full p-5 rounded-[24px] flex items-center justify-between  bg-red-500
-          hover:scale-[1.02] transition transform active:scale-95 group border border-red-200/40">
-
+                <a href="LogoutController.php" class="w-full bg-gradient-to-r from-[#E8778A] to-[#d45a70] p-5 rounded-[28px] flex items-center justify-between shadow-[0_10px_25px_rgba(232,119,138,0.3)] mt-3 active:scale-[0.97] transition-transform group">
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-white text-red-500  flex items-center justify-center shadow-lg">
-                            <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                        <div class="w-12 h-12 rounded-[20px] bg-white/20 text-white flex items-center justify-center shadow-inner backdrop-blur-sm">
+                            <i class="fa-solid fa-right-from-bracket text-lg pl-1"></i>
                         </div>
-
-                        <h3 class="text-base font-black text-white leading-wide text-center">
-                            Logout
-                        </h3>
+                        <h3 class="text-[14px] font-black text-white tracking-wider">Logout</h3>
                     </div>
-
-                    <i class="fa-solid fa-chevron-right text-red-400 text-sm"></i>
+                    <i class="fa-solid fa-power-off text-white/70 text-sm mr-2 group-hover:text-white transition-colors"></i>
                 </a>
+
             </div>
         </div>
 
-        <!-- <div class="absolute bottom-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-100 px-6 py-5 flex justify-between items-center z-40 rounded-b-[40px] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
-            <a href="kasir.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-cash-register text-xl mb-1"></i><span class="text-[10px] font-bold">Kasir</span></a>
-            <a href="main_page.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-house text-xl mb-1"></i><span class="text-[10px] font-bold">Beranda</span></a>
-            <a href="stok.php" class="flex flex-col items-center text-ucla-blue/30"><i class="fa-solid fa-box text-xl mb-1"></i><span class="text-[10px] font-bold">Stok</span></a>
-            <a href="profile.php" class="flex flex-col items-center text-space-cadet"><i class="fa-solid fa-circle-user text-2xl mb-1"></i><span class="text-[10px] font-black uppercase">Profil</span></a> 
-        </div> -->
-
-        <div
-            class="absolute bottom-0 w-full bg-white px-8 py-6 flex justify-between items-center z-50 rounded-b-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.08)] border-t border-slate-100">
-            <a href="kasir.php" class="flex flex-col items-center text-ucla-blue/30 hover:text-space-cadet transition">
-                <i class="fa-solid fa-cash-register text-xl"></i>
-                <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Kasir</span>
-            </a>
-            <a href="main_page.php" class="flex flex-col items-center text-ucla-blue/30 hover:text-space-cadet transition">
-                <i class="fa-solid fa-house-chimney text-xl"></i>
-                <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Beranda</span>
-            </a>
-            <a href="stok.php" class="flex flex-col items-center text-ucla-blue/30 hover:text-space-cadet transition">
-                <i class="fa-solid fa-box text-xl"></i>
-                <span class="text-[9px] font-black mt-1.5 uppercase tracking-tighter">Stok</span>
-            </a>
-            <a href="profile.php" class="flex flex-col items-center text-space-cadet relative">
-                <i class="fa-solid fa-circle-user text-xl"></i>
-                <span class="text-[9px] font-black mt-1.5 uppercase tracking-widest">Profil</span>
-                <div class="absolute -bottom-2 w-1.5 h-1.5 bg-space-cadet rounded-full"></div>
-            </a>
-        </div>
-
-        <!-- HELP BUTTON (INSIDE PHONE) -->
-        <button onclick="openHelp()"
-            class="absolute bottom-28 right-5 w-14 h-14 bg-space-cadet text-white rounded-2xl shadow-2xl flex items-center justify-center z-[60] active:scale-90 transition">
-            <i class="fa-solid fa-headset text-xl"></i>
+        <button onclick="openSupport()" class="absolute bottom-[85px] right-6 w-14 h-14 bg-gradient-to-br from-cyan-azure to-pink-lavender rounded-full flex items-center justify-center text-white shadow-[0_10px_25px_rgba(206,181,212,0.6)] z-40 hover:scale-105 active:scale-95 transition-all border-[3px] border-white animate-float-helper">
+            <i class="fa-solid fa-headset text-2xl"></i>
         </button>
 
-        <!-- HELP MODAL -->
-        <div id="helpModal" class="hidden absolute inset-0 z-[70] flex items-center justify-center">
+        <div class="absolute bottom-5 left-5 right-5 navbar-glass px-4 py-3 flex justify-between items-center z-50">
+            <a href="kasir.php" class="nav-item flex flex-col items-center py-2 px-4">
+                <i class="nav-icon fa-solid fa-cash-register"></i>
+                <span class="nav-label mt-1">Kasir</span>
+            </a>
+            <a href="main_page.php" class="nav-item flex flex-col items-center py-2 px-4">
+                <i class="nav-icon fa-solid fa-house-chimney"></i>
+                <span class="nav-label mt-1">Beranda</span>
+            </a>
+            <a href="stok.php" class="nav-item flex flex-col items-center py-2 px-4">
+                <i class="nav-icon fa-solid fa-box"></i>
+                <span class="nav-label mt-1">Stok</span>
+            </a>
+            <a href="profile.php" class="nav-item active flex flex-col items-center py-2 px-4">
+                <i class="nav-icon fa-solid fa-circle-user"></i>
+                <span class="nav-label mt-1">Profil</span>
+            </a>
+        </div>
 
-            <!-- overlay -->
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-
-            <!-- content -->
-            <div class="relative bg-white w-[85%] rounded-3xl p-6 text-center shadow-2xl">
-
-                <div class="w-16 h-16 mx-auto bg-blue-100 text-space-cadet rounded-2xl flex items-center justify-center text-2xl mb-4">
-                    <i class="fa-solid fa-headset"></i>
+        <div id="supportModal" class="hidden absolute inset-0 z-[100] flex items-center justify-center p-6 bg-space-cadet/40 backdrop-blur-md transition-all">
+            <div class="relative bg-white/95 backdrop-blur-xl w-full rounded-[40px] p-8 text-center shadow-[0_20px_60px_rgba(16,43,83,0.2)] border border-white overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-pink-lavender/20 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="w-16 h-16 rounded-[22px] mx-auto flex items-center justify-center bg-gradient-to-br from-cyan-azure to-pink-lavender shadow-[0_8px_20px_rgba(206,181,212,0.4)] border-2 border-white relative z-10 text-white mb-5">
+                    <i class="fa-solid fa-headset text-3xl"></i>
                 </div>
 
-                <h2 class="font-black text-lg text-space-cadet mb-2">
-                    Pusat Bantuan
-                </h2>
+                <h3 class="text-[22px] font-serif font-black tracking-tight text-space-cadet mt-2 relative z-10">Butuh Bantuan?</h3>
+                <p class="text-[12px] font-bold text-ucla-blue mt-2 leading-relaxed relative z-10 mb-6">Pilih layanan pelanggan yang ingin kamu hubungi.</p>
 
-                <p class="text-sm text-gray-500 mb-6">
-                    Ada kendala? Hubungi admin SmartCash
-                </p>
+                <div class="space-y-4 relative z-10">
+                    <a href="https://api.whatsapp.com/send?phone=6281335517865&text=Halo%20Admin%20Smartcash,%20saya%20butuh%20bantuan%20terkait%20aplikasi." target="_blank" class="w-full py-5 bg-white rounded-[24px] flex items-center justify-between px-6 hover:border-[#25D366] hover:bg-[#25D366]/5 border-2 border-slate-100 shadow-sm transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-[#25D366]/10 text-[#25D366] rounded-full flex items-center justify-center group-hover:bg-[#25D366] group-hover:text-white transition-colors">
+                                <i class="fa-brands fa-whatsapp text-xl"></i>
+                            </div>
+                            <span class="font-black text-[14px] text-space-cadet">WhatsApp</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-air-blue text-xs"></i>
+                    </a>
 
-                <button onclick="contactWA()"
-                    class="w-full py-3 bg-green-500 text-white rounded-xl font-black mb-3">
-                    Hubungi via WhatsApp
-                </button>
+                    <a href="mailto:C14240048@john.petra.ac.id?subject=Bantuan%20Aplikasi%20Smartcash" class="w-full py-5 bg-white rounded-[24px] flex items-center justify-between px-6 hover:border-cyan-azure hover:bg-cyan-azure/5 border-2 border-slate-100 shadow-sm transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-cyan-azure/10 text-cyan-azure rounded-full flex items-center justify-center group-hover:bg-cyan-azure group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-envelope text-lg"></i>
+                            </div>
+                            <span class="font-black text-[14px] text-space-cadet">Email</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-air-blue text-xs"></i>
+                    </a>
+                </div>
 
-                <button onclick="contactEmail()"
-                    class="w-full py-3 bg-space-cadet text-white rounded-xl font-black mb-3">
-                    Kirim Email
-                </button>
-
-                <button onclick="closeHelp()"
-                    class="text-xs text-gray-400">
-                    Tutup
+                <button onclick="closeSupport()" class="mt-8 text-[11px] font-bold text-air-blue uppercase tracking-widest hover:text-ucla-blue transition-colors relative z-10">
+                    Batal
                 </button>
             </div>
         </div>
-
-        <div id="passwordSuccessModal"
-            class="<?= (isset($_GET['password']) && $_GET['password'] === 'success') ? '' : 'hidden' ?> absolute inset-0 z-[80] flex items-center justify-center">
-
-            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-
-            <div class="relative bg-white w-[80%] rounded-3xl p-6 text-center shadow-2xl">
-
-                <div class="w-16 h-16 mx-auto bg-green-100 text-green-500 rounded-full flex items-center justify-center text-2xl mb-4">
-                    <i class="fa-solid fa-check"></i>
-                </div>
-
-                <h3 class="font-black text-lg text-space-cadet mb-2">
-                    Password Berhasil Diubah
-                </h3>
-
-                <p class="text-sm text-gray-500 mb-5">
-                    Password akun Anda telah berhasil diperbarui.
-                </p>
-
-                <button onclick="closePasswordSuccess()"
-                    class="w-full py-3 bg-space-cadet text-white rounded-xl font-bold">
-                    OK
-                </button>
-
-            </div>
-        </div>
-
 
     </div>
 
-
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
-        function openHelp() {
-            document.getElementById('helpModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        // FUNGSI UNTUK MODAL SUPPORT (WA / EMAIL)
+        function openSupport() {
+            document.getElementById('supportModal').classList.remove('hidden');
+        }
+        function closeSupport() {
+            document.getElementById('supportModal').classList.add('hidden');
         }
 
-        function closeHelp() {
-            document.getElementById('helpModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Notifikasi Foto Upload
+        if (urlParams.get('upload') === 'success') {
+            Swal.fire({
+                html: `
+                    <div class="relative">
+                        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-40 pointer-events-none" style="background: #CEB5D4;"></div>
+                        <div class="absolute -bottom-10 -left-10 w-32 h-32 rounded-full blur-2xl opacity-40 pointer-events-none" style="background: #4E7AB1;"></div>
+
+                        <div class="relative z-10 pt-4">
+                            <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-white shadow-[0_10px_25px_rgba(78,122,177,0.4)]" style="background: linear-gradient(135deg, #4E7AB1 0%, #CEB5D4 100%);">
+                                <i class="fa-solid fa-check text-white text-3xl"></i>
+                            </div>
+
+                            <h2 class="text-2xl font-serif font-black text-space-cadet mb-2">Mantap!</h2>
+                            <p class="text-[13px] font-medium text-ucla-blue mb-4">Foto profil usahamu berhasil diperbarui.</p>
+                        </div>
+                    </div>
+                `,
+                buttonsStyling: false,
+                confirmButtonText: 'Tutup',
+                width: '320px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: 'rgba(16, 43, 83, 0.5)',
+                customClass: { 
+                    popup: 'rounded-[40px] border border-white shadow-2xl', 
+                    htmlContainer: '!overflow-hidden !m-0 !p-5',
+                    confirmButton: 'swal-gradient-btn mt-2 mb-2' 
+                }
+            }).then(() => {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            });
         }
 
-        function contactWA() {
-            const phone = "6281335517865";
-            const message = "Halo Admin SimplyCash, saya butuh bantuan";
-            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-        }
-
-        function contactEmail() {
-            window.location.href = "mailto:admin@smartcash.com?subject=Bantuan SmartCash";
-        }
+        <?php if(isset($upload_error)): ?>
+            Swal.fire({
+                icon: 'error',
+                iconColor: '#E8778A', 
+                title: 'Gagal Upload',
+                text: '<?= $upload_error ?>',
+                confirmButtonColor: '#102B53',
+                width: '300px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdrop: 'rgba(16, 43, 83, 0.4)',
+                customClass: {
+                    popup: 'rounded-[32px] border border-white shadow-xl',
+                    title: 'text-xl font-serif font-bold text-[#102B53]',
+                    htmlContainer: 'text-[12px] font-medium text-[#50698D] mt-2',
+                    confirmButton: 'swal-gradient-btn mt-2' 
+                }
+            });
+        <?php endif; ?>
     </script>
-
-    <script>
-        function closePasswordSuccess() {
-            document.getElementById('passwordSuccessModal')
-                .classList.add('hidden');
-
-            window.history.replaceState({},
-                document.title,
-                window.location.pathname
-            );
-        }
-    </script>
-    <!-- 
-
-<script>
-Swal.fire({
-    icon: 'success',
-    title: 'Password Berhasil Diubah!',
-    text: 'Password akun Anda telah berhasil diperbarui.',
-    confirmButtonColor: '#102B53',
-    confirmButtonText: 'Mantap'
-}).then(() => {
-    window.history.replaceState({}, document.title, window.location.pathname);
-});
-</script>
-
 </body>
 </html>

@@ -281,7 +281,7 @@ $products = $stmt_stok->get_result();
                 <span class="nav-label mt-1">Home</span>
             </a>
             <a href="stok.php" class="nav-item active flex flex-col items-center py-2 px-4">
-                <i class="nav-icon fa-solid fa-box"></i>
+                <i class="nav-icon fa-solid fa-box-open"></i>
                 <span class="nav-label mt-1">Stok</span>
             </a>
             <a href="profile.php" class="nav-item flex flex-col items-center py-2 px-4">

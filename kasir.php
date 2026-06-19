@@ -183,7 +183,7 @@ $products = $stmt_prod->get_result();
 
         <!-- HEADER -->
         <div class="pt-12 pb-4 px-6 relative z-30 flex-shrink-0">
-            <h1 class="text-4xl font-serif font-black text-gradient leading-tight tracking-tighter mb-5">KASIR</h1>
+            <h1 class="text-4xl font-serif font-black text-bold text-gradient leading-tight tracking-tighter mb-5">KASIR</h1>
 
             <div class="flex items-center gap-3">
                 <button class="w-12 h-12 bg-white/70 backdrop-blur-md rounded-[20px] flex items-center justify-center text-cyan-azure shadow-sm border border-white transition active:scale-95">
@@ -261,7 +261,7 @@ $products = $stmt_prod->get_result();
             </a>
             <a href="main_page.php" class="nav-item flex flex-col items-center py-2 px-4">
                 <i class="nav-icon fa-solid fa-house-chimney"></i>
-                <span class="nav-label mt-1">Beranda</span>
+                <span class="nav-label mt-1">Home</span>
             </a>
             <a href="stok.php" class="nav-item flex flex-col items-center py-2 px-4">
                 <i class="nav-icon fa-solid fa-box"></i>

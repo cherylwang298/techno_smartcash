@@ -185,7 +185,7 @@ $products = $stmt_stok->get_result();
         <div class="orb orb-3"></div>
 
         <div class="pt-12 pb-2 px-6 relative z-30 flex-shrink-0">
-            <h1 class="text-4xl font-serif font-black text-gradient leading-tight tracking-tighter mb-5">STOK PRODUK</h1>
+            <h1 class="text-4xl font-serif font-black text-bold text-gradient leading-tight tracking-tighter mb-5">STOK PRODUK</h1>
             
             <div class="flex items-center gap-3">
                 <div class="relative flex-1">
@@ -278,7 +278,7 @@ $products = $stmt_stok->get_result();
             </a>
             <a href="main_page.php" class="nav-item flex flex-col items-center py-2 px-4">
                 <i class="nav-icon fa-solid fa-house-chimney"></i>
-                <span class="nav-label mt-1">Beranda</span>
+                <span class="nav-label mt-1">Home</span>
             </a>
             <a href="stok.php" class="nav-item active flex flex-col items-center py-2 px-4">
                 <i class="nav-icon fa-solid fa-box"></i>

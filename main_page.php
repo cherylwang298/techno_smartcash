@@ -759,7 +759,7 @@ function formatRupiah($angka)
             </a>
             <a href="main_page.php" class="nav-item active flex flex-col items-center py-2 px-4">
                 <i class="nav-icon fa-solid fa-house-chimney"></i>
-                <span class="nav-label mt-1">Beranda</span>
+                <span class="nav-label mt-1">Home</span>
             </a>
             <a href="stok.php" class="nav-item flex flex-col items-center py-2 px-4">
                 <i class="nav-icon fa-solid fa-box"></i>

@@ -285,8 +285,8 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
             </div>
         </div>
 
-        <button onclick="openSupport()" class="absolute bottom-[85px] right-6 w-14 h-14 bg-gradient-to-br from-cyan-azure to-pink-lavender rounded-full flex items-center justify-center text-white shadow-[0_10px_25px_rgba(206,181,212,0.6)] z-40 hover:scale-105 active:scale-95 transition-all border-[3px] border-white animate-float-helper">
-            <i class="fa-solid fa-headset text-2xl"></i>
+        <button onclick="openSupport()" class="absolute top-8 right-6 w-14 h-14 bg-gradient-to-br from-cyan-azure to-pink-lavender rounded-full flex items-center justify-center text-white shadow-[0_8px_20px_rgba(206,181,212,0.5)] z-50 hover:scale-105 active:scale-95 transition-all border-[2.5px] border-white animate-float-helper">
+            <i class="fa-solid fa-headset text-lg"></i>
         </button>
 
         <div class="absolute bottom-5 left-5 right-5 navbar-glass px-4 py-3 flex justify-between items-center z-50">

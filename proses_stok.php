@@ -19,6 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $buy_price = $_POST['purchase_price']; 
     $sell_price = $_POST['price'];        
     $stock = $_POST['stock'];
+    // MENANGKAP MIN_STOCK DARI FORM
+    $min_stock = $_POST['min_stock'] ?? 5; 
 
     $image_path = null;
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
@@ -37,22 +39,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
   if ($action == 'add') {
-//     var_dump($_POST['action_type']);
-// exit;
-
+    // MENAMBAHKAN min_stock KE QUERY INSERT
     $sql = "INSERT INTO products
-            (business_id, name, category, buy_price, sell_price, stock, image_path)
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+            (business_id, name, category, buy_price, sell_price, stock, min_stock, image_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
+    // Tambah satu 'i' untuk min_stock -> "issddiis"
     $stmt->bind_param(
-        "issddis",
+        "issddiis",
         $biz_id,
         $name,
         $category,
         $buy_price,
         $sell_price,
         $stock,
+        $min_stock,
         $image_path
     );
 
@@ -78,10 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $keterangan
     );
 
-    // $stmt_trans->execute();
     if (!$stmt_trans->execute()) {
-    die("Error transaksi: " . $stmt_trans->error);
-}
+        die("Error transaksi: " . $stmt_trans->error);
+    }
 
     header("Location: stok.php?status=success");
     exit;
@@ -103,46 +104,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if ($newStock > $oldStock) {
 
-    $selisih = $newStock - $oldStock;
+            $selisih = $newStock - $oldStock;
+            $nominal_pengeluaran = $selisih * $buy_price;
+            $keterangan = "Restock produk: " . $name;
 
-    $nominal_pengeluaran = $selisih * $buy_price;
+            $stmt_trans = $conn->prepare("
+                INSERT INTO transactions
+                (
+                    business_id,
+                    product_id,
+                    qty,
+                    type,
+                    nominal,
+                    description
+                )
+                VALUES (?, ?, ?, 'Pengeluaran', ?, ?)
+            ");
 
-    $keterangan = "Restock produk: " . $name;
+            $stmt_trans->bind_param(
+                "iiids",
+                $biz_id,
+                $product_id,
+                $selisih,
+                $nominal_pengeluaran,
+                $keterangan
+            );
 
-    $stmt_trans = $conn->prepare("
-        INSERT INTO transactions
-        (
-            business_id,
-            product_id,
-            qty,
-            type,
-            nominal,
-            description
-        )
-        VALUES (?, ?, ?, 'Pengeluaran', ?, ?)
-    ");
-
-    $stmt_trans->bind_param(
-        "iiids",
-        $biz_id,
-        $product_id,
-        $selisih,
-        $nominal_pengeluaran,
-        $keterangan
-    );
-
-    $stmt_trans->execute();
-}
+            $stmt_trans->execute();
+        }
 
         if ($image_path) {
-            // Jika ganti foto
-            $sql = "UPDATE products SET name=?, category=?, buy_price=?, sell_price=?, stock=?, image_path=? WHERE id=? AND business_id=?";
+            // Jika ganti foto, tambahkan min_stock
+            $sql = "UPDATE products SET name=?, category=?, buy_price=?, sell_price=?, stock=?, min_stock=?, image_path=? WHERE id=? AND business_id=?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssddisii", $name, $category, $buy_price, $sell_price, $stock, $image_path, $product_id, $biz_id);
+            // Tambah 'i' untuk min_stock -> "ssddiisii"
+            $stmt->bind_param("ssddiisii", $name, $category, $buy_price, $sell_price, $stock, $min_stock, $image_path, $product_id, $biz_id);
         } else {
-            $sql = "UPDATE products SET name=?, category=?, buy_price=?, sell_price=?, stock=? WHERE id=? AND business_id=?";
+            // Jika tidak ganti foto, tambahkan min_stock
+            $sql = "UPDATE products SET name=?, category=?, buy_price=?, sell_price=?, stock=?, min_stock=? WHERE id=? AND business_id=?";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("ssddiii", $name, $category, $buy_price, $sell_price, $stock, $product_id, $biz_id);
+            // Tambah 'i' untuk min_stock -> "ssddiiii"
+            $stmt->bind_param("ssddiiii", $name, $category, $buy_price, $sell_price, $stock, $min_stock, $product_id, $biz_id);
         }
     }
 
@@ -153,4 +155,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     exit;
 }
-

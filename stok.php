@@ -20,8 +20,8 @@ $business_id = $business_data['id'] ?? 0;
 // 2. Logika Filter Kategori
 $category_filter = $_GET['category'] ?? 'Semua';
 
-// Kita sebutkan nama kolomnya satu per satu agar PASTI terambil sesuai DB
-$sql_stok = "SELECT id, name, category, buy_price, sell_price, stock, image_path 
+// Perhatikan: Kolom min_stock ditambahkan ke query!
+$sql_stok = "SELECT id, name, category, buy_price, sell_price, stock, image_path, min_stock 
              FROM products 
              WHERE business_id = ?";
 
@@ -50,6 +50,7 @@ $products = $stmt_stok->get_result();
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         tailwind.config = {
@@ -120,9 +121,11 @@ $products = $stmt_stok->get_result();
 
         /* TEXT GRADIENT */
         .text-gradient {
-            background: linear-gradient(135deg, #102B53 0%, #4E7AB1 40%, #CEB5D4 100%);
+            background: linear-gradient(135deg, #102B53 0%, #4E7AB1 45%, #CEB5D4 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0px 4px 6px rgba(16, 43, 83, 0.25)); 
         }
 
         /* VIBRANT BUTTONS */
@@ -182,7 +185,7 @@ $products = $stmt_stok->get_result();
         <div class="orb orb-3"></div>
 
         <div class="pt-12 pb-2 px-6 relative z-30 flex-shrink-0">
-            <h1 class="text-2xl font-serif font-black text-gradient leading-none tracking-tight mb-5">Stok Produk</h1>
+            <h1 class="text-4xl font-serif font-black text-gradient leading-tight tracking-tighter mb-5">STOK PRODUK</h1>
             
             <div class="flex items-center gap-3">
                 <div class="relative flex-1">
@@ -192,7 +195,8 @@ $products = $stmt_stok->get_result();
                     <input type="text" id="searchInput" onkeyup="searchStok()" placeholder="Cari produk..."
                         class="w-full pl-11 pr-4 py-3.5 bg-white/70 backdrop-blur-md rounded-[20px] text-[13px] font-bold text-space-cadet placeholder-air-blue/80 outline-none shadow-sm border border-white transition focus:border-pink-lavender focus:bg-white focus:shadow-[0_4px_20px_rgba(206,181,212,0.2)]">
                 </div>
-                <button onclick="openModal('add')" class="w-[52px] h-[52px] rounded-[20px] btn-vibrant-gradient flex items-center justify-center flex-shrink-0">
+                <!-- Tombol Add -->
+                <button onclick="openModal('add')" class="w-[46px] h-[52px] rounded-[20px] btn-vibrant-gradient flex items-center justify-center flex-shrink-0">
                     <i class="fa-solid fa-plus text-lg"></i>
                 </button>
             </div>
@@ -217,11 +221,13 @@ $products = $stmt_stok->get_result();
         <div class="flex-1 overflow-y-auto pb-36 hide-scrollbar px-5 pt-2 relative z-20">
             <div class="grid grid-cols-2 gap-4" id="stokList">
                 <?php while ($row = $products->fetch_assoc()) :
-                    $isLow = ($row['stock'] <= 5);
+                    // Ambil min_stock untuk produk ini (atau default 5 jika kosong)
+                    $min_stock_limit = $row['min_stock'] ?? 5;
                     $isEmpty = ($row['stock'] <= 0);
+                    $isLow = ($row['stock'] <= $min_stock_limit && !$isEmpty);
                 ?>
-                    <div onclick="openModal('edit', '<?= $row['id'] ?>', '<?= htmlspecialchars(addslashes($row['name'])) ?>', '<?= $row['stock'] ?>', '<?= $row['sell_price'] ?>', '<?= $row['buy_price'] ?>', '<?= $row['category'] ?>')"
-                        class="product-item glass-card overflow-hidden flex flex-col cursor-pointer group <?= $isLow && !$isEmpty ? 'border-blush-pink/40 shadow-[0_4px_15px_rgba(232,119,138,0.1)]' : '' ?>">
+                    <div onclick="openModal('edit', '<?= $row['id'] ?>', '<?= htmlspecialchars(addslashes($row['name'])) ?>', '<?= $row['stock'] ?>', '<?= $row['sell_price'] ?>', '<?= $row['buy_price'] ?>', '<?= $row['category'] ?>', '<?= $min_stock_limit ?>')"
+                        class="product-item glass-card overflow-hidden flex flex-col cursor-pointer group <?= $isLow ? 'border-blush-pink/40 shadow-[0_4px_15px_rgba(232,119,138,0.1)]' : '' ?>">
 
                         <div class="w-full h-[110px] relative rounded-t-[28px] overflow-hidden bg-white/50">
                             <?php
@@ -284,8 +290,8 @@ $products = $stmt_stok->get_result();
             </a>
         </div>
 
+        <!-- MODAL TAMBAH/EDIT PRODUK -->
         <div id="modalStok" class="hidden absolute inset-0 bg-space-cadet/40 backdrop-blur-md z-[100] flex items-center justify-center p-5 transition-all duration-300">
-            
             <div class="relative bg-white/95 backdrop-blur-xl w-full max-w-[320px] p-7 max-h-[90%] overflow-y-auto hide-scrollbar rounded-[40px] shadow-[0_20px_60px_rgba(16,43,83,0.2)] border border-white">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-pink-lavender/20 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute bottom-0 -left-10 w-32 h-32 bg-cyan-azure/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -309,13 +315,8 @@ $products = $stmt_stok->get_result();
                             <input id="formStock" name="stock" type="number" required class="glass-input" placeholder="0">
                         </div>
                         <div>
-                            <label class="text-[11px] font-bold text-ucla-blue block mb-2 ml-1">Kategori</label>
-                            <select id="formCategory" name="category" class="glass-input cursor-pointer" style="padding-top: 13px; padding-bottom: 13px; padding-right: 10px;">
-                                <option value="Makanan">Makanan</option>
-                                <option value="Minuman">Minuman</option>
-                                <option value="Snack">Snack</option>
-                                <option value="Dessert">Dessert</option>
-                            </select>
+                            <label class="text-[11px] font-bold text-ucla-blue block mb-2 ml-1 flex items-center gap-1"><i class="fa-solid fa-bell text-blush-pink"></i> Batas Alert</label>
+                            <input id="formMinStock" name="min_stock" type="number" required class="glass-input" placeholder="Misal: 5">
                         </div>
                     </div>
 
@@ -328,6 +329,16 @@ $products = $stmt_stok->get_result();
                             <label class="text-[11px] font-bold text-ucla-blue block mb-2 ml-1">Harga Jual</label>
                             <input id="formPrice" name="price" type="number" required class="glass-input" placeholder="Rp 0">
                         </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-bold text-ucla-blue block mb-2 ml-1">Kategori</label>
+                        <select id="formCategory" name="category" class="glass-input cursor-pointer" style="padding-top: 13px; padding-bottom: 13px; padding-right: 10px;">
+                            <option value="Makanan">Makanan</option>
+                            <option value="Minuman">Minuman</option>
+                            <option value="Snack">Snack</option>
+                            <option value="Dessert">Dessert</option>
+                        </select>
                     </div>
 
                     <div class="mt-2">
@@ -361,7 +372,8 @@ $products = $stmt_stok->get_result();
     </div>
 
     <script>
-        function openModal(mode, id = '', name = '', stock = '', price = '', buyPrice = '', category = '') {
+        // Perhatikan parameter minStock ditambahkan di fungsi ini
+        function openModal(mode, id = '', name = '', stock = '', price = '', buyPrice = '', category = '', minStock = '5') {
             const modal = document.getElementById('modalStok');
             const title = document.getElementById('modalTitle');
             const placeholder = document.getElementById('uploadPlaceholder');
@@ -371,7 +383,6 @@ $products = $stmt_stok->get_result();
             modal.classList.add('flex');
             document.getElementById('formAction').value = mode;
 
-            // Reset image preview state
             preview.classList.add('hidden');
             preview.src = '';
             placeholder.classList.remove('hidden');
@@ -381,6 +392,7 @@ $products = $stmt_stok->get_result();
                 document.getElementById('formId').value = id;
                 document.getElementById('formName').value = name;
                 document.getElementById('formStock').value = stock;
+                document.getElementById('formMinStock').value = minStock; // Set min_stock
                 document.getElementById('formPrice').value = price;
                 document.getElementById('formBuyPrice').value = buyPrice;
                 document.getElementById('formCategory').value = category;
@@ -389,6 +401,7 @@ $products = $stmt_stok->get_result();
                 document.getElementById('formId').value = '';
                 document.getElementById('formName').value = '';
                 document.getElementById('formStock').value = '';
+                document.getElementById('formMinStock').value = '5'; // Default
                 document.getElementById('formPrice').value = '';
                 document.getElementById('formBuyPrice').value = '';
             }
@@ -400,7 +413,6 @@ $products = $stmt_stok->get_result();
             modal.classList.remove('flex');
         }
 
-        // Live Search Realtime
         function searchStok() {
             let input = document.getElementById('searchInput').value.toLowerCase();
             let items = document.getElementsByClassName('product-item');
@@ -410,7 +422,6 @@ $products = $stmt_stok->get_result();
             }
         }
 
-        // Preview File Gambar Sebelum Upload
         function previewImage(input) {
             const preview = document.getElementById('imagePreview');
             const placeholder = document.getElementById('uploadPlaceholder');

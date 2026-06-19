@@ -120,6 +120,7 @@ $products = $stmt_prod->get_result();
             background: linear-gradient(135deg, #102B53 0%, #4E7AB1 40%, #CEB5D4 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0px 4px 6px rgba(16, 43, 83, 0.25));
         }
 
         /* VIBRANT BUTTONS */
@@ -182,7 +183,7 @@ $products = $stmt_prod->get_result();
 
         <!-- HEADER -->
         <div class="pt-12 pb-4 px-6 relative z-30 flex-shrink-0">
-            <h1 class="text-2xl font-serif font-black text-gradient leading-none tracking-tight mb-5">Kasir</h1>
+            <h1 class="text-4xl font-serif font-black text-gradient leading-tight tracking-tighter mb-5">KASIR</h1>
 
             <div class="flex items-center gap-3">
                 <button class="w-12 h-12 bg-white/70 backdrop-blur-md rounded-[20px] flex items-center justify-center text-cyan-azure shadow-sm border border-white transition active:scale-95">

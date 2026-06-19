@@ -55,7 +55,7 @@ if ($filter == 'hari') {
         $chart_out[$k] = 0;
     }
 } elseif ($filter == 'tahun') {
-    $bulan_singkat = [1=>'Jan', 2=>'Feb', 3=>'Mar', 4=>'Apr', 5=>'Mei', 6=>'Jun', 7=>'Jul', 8=>'Ags', 9=>'Sep', 10=>'Okt', 11=>'Nov', 12=>'Des'];
+    $bulan_singkat = [1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Ags', 9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'];
     for ($i = 1; $i <= 12; $i++) {
         $chart_labels[$i] = $bulan_singkat[$i];
         $chart_in[$i] = 0;
@@ -70,7 +70,7 @@ if ($filter == 'hari') {
 }
 
 if ($business_id > 0) {
-    $sql_trans = "SELECT t.type, t.nominal, t.qty, t.product_id, p.sell_price, p.buy_price, t.created_at 
+    $sql_trans = "SELECT t.type, t.nominal, t.qty, t.product_id, p.sell_price, p.buy_price, t.created_at, t.description 
                   FROM transactions t
                   LEFT JOIN products p ON t.product_id = p.id
                   WHERE t.business_id = ? AND $date_condition";
@@ -80,25 +80,37 @@ if ($business_id > 0) {
     $stmt_trans->execute();
     $result_trans = $stmt_trans->get_result();
 
+    $list_pemasukan = [];
+    $list_pengeluaran = [];
+    $list_keuntungan = [];
+
     while ($row = $result_trans->fetch_assoc()) {
         $timestamp = strtotime($row['created_at']);
+        $date_formatted = date('d M Y', $timestamp);
+        $desc = $row['description'] ? $row['description'] : '-';
         $in = 0;
         $out = 0;
 
         if ($row['type'] == 'Pemasukan') {
             if ($row['product_id'] !== null) {
                 $in = $row['sell_price'] * $row['qty'];
-                $out = $row['buy_price'] * $row['qty'];
+                $profit_item = ($row['sell_price'] - $row['buy_price']) * $row['qty'];
             } else {
                 $in = $row['nominal'];
+                $profit_item = $in;
             }
+            $list_pemasukan[] = ['date' => $date_formatted, 'desc' => $desc, 'amount' => $in];
+            $list_keuntungan[] = ['date' => $date_formatted, 'desc' => $desc, 'amount' => $profit_item, 'is_positive' => true];
         } elseif ($row['type'] == 'Pengeluaran') {
             $out = $row['nominal'];
+            $list_pengeluaran[] = ['date' => $date_formatted, 'desc' => $desc, 'amount' => $out];
+            $list_keuntungan[] = ['date' => $date_formatted, 'desc' => $desc, 'amount' => $out, 'is_positive' => false];
         }
 
         $pemasukan += $in;
         $pengeluaran += $out;
 
+        // ... (Biarkan kode logika grafik $filter == 'hari' dkk yang ada di bawahnya tetap sama)
         if ($filter == 'hari') {
             $jam = (int)date('H', $timestamp);
             if ($jam >= 6 && $jam < 12) $idx = 0;
@@ -130,6 +142,11 @@ $js_labels = json_encode(array_values($chart_labels));
 $js_in = json_encode(array_values($chart_in));
 $js_out = json_encode(array_values($chart_out));
 
+// Tambahkan variabel JS untuk list detail
+$js_list_pemasukan = json_encode($list_pemasukan ?? []);
+$js_list_pengeluaran = json_encode($list_pengeluaran ?? []);
+$js_list_keuntungan = json_encode($list_keuntungan ?? []);
+
 // 4. Ambil Produk Terlaris
 if ($business_id > 0) {
     $sql_best = "SELECT name, sold_count FROM products WHERE business_id = ? ORDER BY sold_count DESC LIMIT 2";
@@ -153,7 +170,7 @@ if ($is_malam && $business_id > 0) {
     $stmt_stok->bind_param("i", $business_id);
     $stmt_stok->execute();
     $result_stok = $stmt_stok->get_result();
-    while($row = $result_stok->fetch_assoc()) {
+    while ($row = $result_stok->fetch_assoc()) {
         $products_opname[] = $row;
     }
 }
@@ -168,7 +185,8 @@ if ($is_malam && !empty($products_opname)) {
 }
 $js_opname = json_encode($opname_js_data);
 
-function formatRupiah($angka) {
+function formatRupiah($angka)
+{
     $prefix = $angka < 0 ? "-" : "";
     $angka = abs($angka);
     if ($angka >= 1000000) return $prefix . number_format($angka / 1000000, 1) . 'M';
@@ -178,6 +196,7 @@ function formatRupiah($angka) {
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -193,7 +212,7 @@ function formatRupiah($angka) {
         const chartPemasukanData = <?= $js_in ?>;
         const chartPengeluaranData = <?= $js_out ?>;
         const opnameData = <?= $js_opname ?>;
-        
+
         tailwind.config = {
             theme: {
                 extend: {
@@ -214,53 +233,108 @@ function formatRupiah($angka) {
                 }
             }
         }
+
         function openModal(type) {
             document.getElementById('modalTransaksi').classList.remove('hidden');
             document.getElementById('modalTransaksi').classList.add('flex');
             document.getElementById('modalTitle').innerText = 'Tambah ' + type;
             document.getElementById('modalType').value = type;
         }
+
         function closeModal() {
             document.getElementById('modalTransaksi').classList.remove('flex');
             document.getElementById('modalTransaksi').classList.add('hidden');
         }
+
         function changeFilter(value) {
             window.location.href = '?filter=' + value;
         }
     </script>
 
     <style>
-        * { font-family: 'Nunito', sans-serif; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        * {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
 
         /* DREAMY FLUID BACKGROUND */
         .dreamy-bg {
             background-color: #fdfdfd;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(206,181,212,0.3) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(125,159,192,0.25) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(78,122,177,0.2) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(206,181,212,0.25) 0px, transparent 50%);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(206, 181, 212, 0.3) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(125, 159, 192, 0.25) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(78, 122, 177, 0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(206, 181, 212, 0.25) 0px, transparent 50%);
         }
 
         /* FLOATING ORBS ANIMATION */
         @keyframes float {
-            0% { transform: translateY(0px) translateX(0px) scale(1); }
-            33% { transform: translateY(-20px) translateX(15px) scale(1.05); }
-            66% { transform: translateY(15px) translateX(-15px) scale(0.95); }
-            100% { transform: translateY(0px) translateX(0px) scale(1); }
+            0% {
+                transform: translateY(0px) translateX(0px) scale(1);
+            }
+
+            33% {
+                transform: translateY(-20px) translateX(15px) scale(1.05);
+            }
+
+            66% {
+                transform: translateY(15px) translateX(-15px) scale(0.95);
+            }
+
+            100% {
+                transform: translateY(0px) translateX(0px) scale(1);
+            }
         }
-        .orb { position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.5; z-index: 0; }
-        .orb-1 { width: 150px; height: 150px; background: #CEB5D4; top: -5%; left: -20%; animation: float 8s ease-in-out infinite; }
-        .orb-2 { width: 180px; height: 180px; background: #7D9FC0; top: 40%; right: -20%; animation: float 10s ease-in-out infinite reverse; }
-        .orb-3 { width: 120px; height: 120px; background: #4E7AB1; bottom: 10%; left: 10%; animation: float 7s ease-in-out infinite 1s; opacity: 0.3; }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 150px;
+            height: 150px;
+            background: #CEB5D4;
+            top: -5%;
+            left: -20%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 180px;
+            height: 180px;
+            background: #7D9FC0;
+            top: 40%;
+            right: -20%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        .orb-3 {
+            width: 120px;
+            height: 120px;
+            background: #4E7AB1;
+            bottom: 10%;
+            left: 10%;
+            animation: float 7s ease-in-out infinite 1s;
+            opacity: 0.3;
+        }
 
         /* PHONE SHELL BORDER */
         .phone-shell {
             border: 12px solid #102B53;
             border-radius: 56px;
-            box-shadow: 0 40px 100px rgba(16,43,83,0.2);
+            box-shadow: 0 40px 100px rgba(16, 43, 83, 0.2);
         }
 
         /* GLASSMORPHISM CARDS */
@@ -281,7 +355,10 @@ function formatRupiah($angka) {
             border-radius: 22px;
             transition: transform 0.3s ease;
         }
-        .glass-card-sm:active { transform: scale(0.95); }
+
+        .glass-card-sm:active {
+            transform: scale(0.95);
+        }
 
         /* TEXT GRADIENT */
         .text-gradient {
@@ -298,7 +375,11 @@ function formatRupiah($angka) {
             border-radius: 20px;
             transition: all 0.3s ease;
         }
-        .btn-dreamy:active { transform: scale(0.96); box-shadow: 0 4px 12px rgba(206, 181, 212, 0.2); }
+
+        .btn-dreamy:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 12px rgba(206, 181, 212, 0.2);
+        }
 
         .btn-dreamy-alt {
             background: linear-gradient(135deg, #4E7AB1 0%, #81A4CD 100%);
@@ -307,7 +388,11 @@ function formatRupiah($angka) {
             border-radius: 20px;
             transition: all 0.3s ease;
         }
-        .btn-dreamy-alt:active { transform: scale(0.96); box-shadow: 0 4px 12px rgba(78, 122, 177, 0.2); }
+
+        .btn-dreamy-alt:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 12px rgba(78, 122, 177, 0.2);
+        }
 
         /* NAVBAR (Floating Glass) */
         .navbar-glass {
@@ -319,42 +404,119 @@ function formatRupiah($angka) {
             border-radius: 999px;
         }
 
-        .nav-item { transition: all 0.3s ease; }
-        .nav-item.active { background: linear-gradient(135deg, rgba(206,181,212,0.25) 0%, rgba(78,122,177,0.15) 100%); border-radius: 999px; }
-        .nav-item.active .nav-icon { color: #4E7AB1; }
-        .nav-item.active .nav-label { color: #102B53; font-weight: 800; }
-        .nav-icon { color: #7D9FC0; font-size: 16px; transition: color 0.3s; }
-        .nav-label { font-size: 9px; font-weight: 700; color: #7D9FC0; letter-spacing: 0.02em; transition: color 0.3s; }
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(206, 181, 212, 0.25) 0%, rgba(78, 122, 177, 0.15) 100%);
+            border-radius: 999px;
+        }
+
+        .nav-item.active .nav-icon {
+            color: #4E7AB1;
+        }
+
+        .nav-item.active .nav-label {
+            color: #102B53;
+            font-weight: 800;
+        }
+
+        .nav-icon {
+            color: #7D9FC0;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .nav-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: #7D9FC0;
+            letter-spacing: 0.02em;
+            transition: color 0.3s;
+        }
 
         /* MODAL & INPUTS */
         .modal-input {
-            background: rgba(255, 255, 255, 0.8); border: 1.5px solid rgba(255,255,255,0.9);
-            border-radius: 16px; font-size: 13px; font-weight: 700; color: #102B53;
-            padding: 14px 16px; outline: none; transition: all 0.3s; box-shadow: inset 0 2px 5px rgba(80,105,141,0.02);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #102B53;
+            padding: 14px 16px;
+            outline: none;
+            transition: all 0.3s;
+            box-shadow: inset 0 2px 5px rgba(80, 105, 141, 0.02);
             width: 100%;
         }
-        .modal-input:focus { border-color: #CEB5D4; background: #fff; box-shadow: 0 4px 20px rgba(206,181,212,0.2); }
-        .modal-input::placeholder { color: #7D9FC0; font-weight: 600; opacity: 0.8; }
+
+        .modal-input:focus {
+            border-color: #CEB5D4;
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(206, 181, 212, 0.2);
+        }
+
+        .modal-input::placeholder {
+            color: #7D9FC0;
+            font-weight: 600;
+            opacity: 0.8;
+        }
 
         /* TABLE INPUTS OPNAME */
         .glass-input {
-            background: rgba(255, 255, 255, 0.7); border: 1.5px solid rgba(255,255,255,0.9);
-            border-radius: 12px; text-align: center; font-size: 12px; font-weight: 800; color: #102B53;
-            padding: 8px 2px; outline: none; transition: all 0.2s; box-shadow: inset 0 2px 4px rgba(16,43,83,0.02);
+            background: rgba(255, 255, 255, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 800;
+            color: #102B53;
+            padding: 8px 2px;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: inset 0 2px 4px rgba(16, 43, 83, 0.02);
         }
-        .glass-input:focus { border-color: #CEB5D4; background: #fff; box-shadow: 0 0 0 3px rgba(206,181,212,0.2); }
+
+        .glass-input:focus {
+            border-color: #CEB5D4;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(206, 181, 212, 0.2);
+        }
 
         .filter-select {
-            background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-            color: #102B53; font-size: 10px; font-weight: 800; border-radius: 999px;
-            padding: 6px 12px; outline: none; cursor: pointer; letter-spacing: 0.03em;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: #102B53;
+            font-size: 10px;
+            font-weight: 800;
+            border-radius: 999px;
+            padding: 6px 12px;
+            outline: none;
+            cursor: pointer;
+            letter-spacing: 0.03em;
         }
 
         /* Custom Scrollbar Opname */
-        .opname-scroll { max-height: 180px; overflow-y: auto; border-radius: 20px; }
-        .opname-scroll::-webkit-scrollbar { width: 6px; }
-        .opname-scroll::-webkit-scrollbar-track { background: transparent; }
-        .opname-scroll::-webkit-scrollbar-thumb { background: #CEB5D4; border-radius: 10px; }
+        .opname-scroll {
+            max-height: 180px;
+            overflow-y: auto;
+            border-radius: 20px;
+        }
+
+        .opname-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .opname-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .opname-scroll::-webkit-scrollbar-thumb {
+            background: #CEB5D4;
+            border-radius: 10px;
+        }
 
         /* SWAL CUSTOM BUTTON */
         .swal-gradient-btn {
@@ -369,7 +531,11 @@ function formatRupiah($angka) {
             outline: none !important;
             transition: all 0.2s ease;
         }
-        .swal-gradient-btn:active { transform: scale(0.96) !important; box-shadow: 0 4px 12px rgba(206, 181, 212, 0.3) !important; }
+
+        .swal-gradient-btn:active {
+            transform: scale(0.96) !important;
+            box-shadow: 0 4px 12px rgba(206, 181, 212, 0.3) !important;
+        }
     </style>
 </head>
 
@@ -380,22 +546,35 @@ function formatRupiah($angka) {
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
 
-        <div class="pt-12 pb-2 px-6 relative z-30 flex-shrink-0">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center gap-4">
+        <div class="pt-12 pb-4 px-6 relative z-30 flex-shrink-0 flex justify-between items-center">
+            <div class="flex items-center gap-3.5">
+
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-cyan-azure/50 to-pink-lavender/50 rounded-full blur-md scale-110"></div>
                     <?php if (!empty($logo)) : ?>
-                        <img src="<?= htmlspecialchars($logo) ?>" class="w-12 h-12 rounded-full object-cover border-[3px] border-white shadow-[0_4px_15px_rgba(80,105,141,0.15)]" alt="Logo">
+                        <img src="<?= htmlspecialchars($logo) ?>" class="relative w-[46px] h-[46px] rounded-full object-cover border-[2.5px] border-white shadow-sm" alt="Logo">
                     <?php else : ?>
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-cyan-azure font-serif font-black text-xl bg-gradient-to-br from-white to-pink-lavender/30 border-[3px] border-white shadow-[0_4px_15px_rgba(206,181,212,0.3)]">
+                        <div class="relative w-[46px] h-[46px] rounded-full flex items-center justify-center text-cyan-azure font-serif font-black text-xl bg-white border-[2.5px] border-white shadow-sm">
                             <?= strtoupper(substr($business_name, 0, 1)) ?>
                         </div>
                     <?php endif; ?>
-                    <div>
-                        <p class="text-[10px] font-bold text-air-blue tracking-widest mb-0.5">Personal Dashboard</p>
-                        <h1 class="text-[20px] font-serif font-black text-space-cadet leading-none tracking-tight"><?= htmlspecialchars($business_name) ?></h1>
-                    </div>
+                </div>
+
+                <div>
+                    <p class="text-[10px] font-extrabold text-air-blue tracking-[0.15em] mb-0.5 flex items-center gap-1.5 uppercase">
+                        <i class="fa-solid <?= $is_malam ? 'fa-moon text-pink-lavender' : 'fa-sun text-yellow-gold' ?> text-[11px]"></i>
+                        Dashboard
+                    </p>
+                    <h1 class="text-[19px] font-serif font-black text-space-cadet leading-none tracking-tight">
+                        <?= htmlspecialchars($business_name) ?>
+                    </h1>
                 </div>
             </div>
+
+            <button class="relative w-10 h-10 bg-white/50 backdrop-blur-xl rounded-full flex items-center justify-center text-space-cadet shadow-[0_4px_15px_rgba(80,105,141,0.08)] border border-white transition-transform active:scale-95">
+                <i class="fa-regular fa-bell text-[16px]"></i>
+                <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-blush-pink rounded-full border border-white"></span>
+            </button>
         </div>
 
         <div class="flex-1 overflow-y-auto hide-scrollbar px-5 relative z-20" style="padding-bottom: 125px;">
@@ -406,19 +585,19 @@ function formatRupiah($angka) {
                         <span class="text-[13px] font-bold text-space-cadet flex items-center gap-2">
                             <i class="fa-solid fa-chart-column text-pink-lavender"></i> Insight Bisnis
                         </span>
-                        
+
                         <div class="flex items-center gap-2">
                             <select onchange="changeFilter(this.value)" class="filter-select shadow-sm">
-                                <option value="hari"  <?= $filter=='hari'  ? 'selected':'' ?>>HARI INI</option>
-                                <option value="minggu"<?= $filter=='minggu'? 'selected':'' ?>>MINGGU INI</option>
-                                <option value="bulan" <?= $filter=='bulan' ? 'selected':'' ?>>BULAN INI</option>
-                                <option value="tahun" <?= $filter=='tahun' ? 'selected':'' ?>>TAHUN INI</option>
+                                <option value="hari" <?= $filter == 'hari'  ? 'selected' : '' ?>>HARI INI</option>
+                                <option value="minggu" <?= $filter == 'minggu' ? 'selected' : '' ?>>MINGGU INI</option>
+                                <option value="bulan" <?= $filter == 'bulan' ? 'selected' : '' ?>>BULAN INI</option>
+                                <option value="tahun" <?= $filter == 'tahun' ? 'selected' : '' ?>>TAHUN INI</option>
                             </select>
-                            
+
                             <a href="download_report.php?filter=<?= $filter ?>" target="_blank" class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(78,122,177,0.15)] border border-slate-100 hover:bg-slate-50 transition" title="Cetak PDF">
                                 <i class="fa-solid fa-print text-cyan-azure text-[12px]"></i>
                             </a>
-                            
+
                             <a href="download_csv.php?filter=<?= $filter ?>" class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(91,191,163,0.15)] border border-slate-100 hover:bg-slate-50 transition" title="Unduh Excel">
                                 <i class="fa-solid fa-file-excel text-mint-green text-[12px]"></i>
                             </a>
@@ -431,26 +610,26 @@ function formatRupiah($angka) {
             </div>
 
             <div class="mt-5 grid grid-cols-3 gap-3">
-                <div class="glass-card-sm p-4 text-center group cursor-default">
+                <div onclick="openDetailModal('pemasukan')" class="glass-card-sm p-4 text-center group cursor-pointer hover:bg-white/80 transition-colors">
                     <div class="w-10 h-10 bg-gradient-to-br from-cyan-azure to-[#81A4CD] rounded-full mx-auto mb-2 flex items-center justify-center shadow-[0_6px_15px_rgba(78,122,177,0.3)] group-hover:scale-105 transition-transform">
                         <i class="fa-solid fa-arrow-down text-white text-[14px]"></i>
                     </div>
                     <p class="text-[9px] font-bold text-ucla-blue tracking-widest mb-1">Pemasukan</p>
                     <p class="text-[12px] font-black text-space-cadet"><?= formatRupiah($pemasukan) ?></p>
                 </div>
-                
-                <div class="glass-card-sm p-4 text-center group cursor-default">
+
+                <div onclick="openDetailModal('pengeluaran')" class="glass-card-sm p-4 text-center group cursor-pointer hover:bg-white/80 transition-colors">
                     <div class="w-10 h-10 bg-gradient-to-br from-pink-lavender to-[#e1ccdb] rounded-full mx-auto mb-2 flex items-center justify-center shadow-[0_6px_15px_rgba(206,181,212,0.4)] group-hover:scale-105 transition-transform">
                         <i class="fa-solid fa-arrow-up text-white text-[14px]"></i>
                     </div>
                     <p class="text-[9px] font-bold text-ucla-blue tracking-widest mb-1">Pengeluaran</p>
                     <p class="text-[12px] font-black text-space-cadet"><?= formatRupiah($pengeluaran) ?></p>
                 </div>
-                
-                <div class="glass-card-sm p-4 text-center relative overflow-hidden group cursor-default">
+
+                <div onclick="openDetailModal('keuntungan')" class="glass-card-sm p-4 text-center relative overflow-hidden group cursor-pointer hover:bg-white/80 transition-colors">
                     <i class="fa-solid fa-sparkles absolute top-2 right-2 text-yellow-gold/30 text-[12px]"></i>
                     <i class="fa-solid fa-star absolute bottom-3 left-2 text-yellow-gold/20 text-[10px]"></i>
-                    
+
                     <div class="w-10 h-10 bg-gradient-to-br from-mint-green to-[#88d5c2] rounded-full mx-auto mb-2 flex items-center justify-center shadow-[0_6px_15px_rgba(91,191,163,0.3)] group-hover:scale-105 transition-transform">
                         <i class="fa-solid fa-coins text-white text-[14px]"></i>
                     </div>
@@ -483,12 +662,12 @@ function formatRupiah($angka) {
                 <div class="glass-card overflow-hidden">
                     <table class="w-full text-left">
                         <tbody>
-                            <?php if ($best_products && $best_products->num_rows > 0) : $i=0; ?>
+                            <?php if ($best_products && $best_products->num_rows > 0) : $i = 0; ?>
                                 <?php while ($row = $best_products->fetch_assoc()) : $i++; ?>
-                                    <tr class="<?= $i==1 ? 'border-b border-white/60 bg-white/20' : '' ?>">
+                                    <tr class="<?= $i == 1 ? 'border-b border-white/60 bg-white/20' : '' ?>">
                                         <td class="px-6 py-5">
                                             <div class="flex items-center gap-5">
-                                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-black <?= $i==1?'bg-gradient-to-br from-yellow-gold to-[#f4d481] text-white shadow-[0_4px_10px_rgba(240,193,75,0.4)] border border-white':'bg-white/70 text-ucla-blue border border-white/50' ?>"><?= $i ?></div>
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center text-[13px] font-black <?= $i == 1 ? 'bg-gradient-to-br from-yellow-gold to-[#f4d481] text-white shadow-[0_4px_10px_rgba(240,193,75,0.4)] border border-white' : 'bg-white/70 text-ucla-blue border border-white/50' ?>"><?= $i ?></div>
                                                 <span class="text-[14px] font-bold text-space-cadet font-serif"><?= htmlspecialchars($row['name']) ?></span>
                                             </div>
                                         </td>
@@ -512,65 +691,68 @@ function formatRupiah($angka) {
             </div>
 
             <?php if ($is_malam && $business_id > 0): ?>
-            <div class="mt-8">
-                <div class="flex items-center gap-2 mb-4 px-1">
-                    <span class="text-[14px] font-bold text-space-cadet flex items-center gap-2">
-                        <div class="w-6 h-6 bg-space-cadet/10 text-space-cadet rounded-md flex items-center justify-center border border-space-cadet/20"><i class="fa-solid fa-moon text-[12px]"></i></div> Cek Stok Malam
-                    </span>
-                </div>
-                <div class="glass-card p-5">
-                    
-                    <div class="mb-6 p-4 bg-gradient-to-r from-cyan-azure/10 to-pink-lavender/10 rounded-xl border border-cyan-azure/20 shadow-inner">
-                        <p class="text-[11px] font-medium text-ucla-blue text-center leading-relaxed">
-                            Cocokkan stok sistem vs fisik hari ini.<br>
-                            <span class="text-cyan-azure font-bold">Menjaga keseimbangan bisnismu.</span>
-                        </p>
+                <div class="mt-8">
+                    <div class="flex items-center gap-2 mb-4 px-1">
+                        <span class="text-[14px] font-bold text-space-cadet flex items-center gap-2">
+                            <div class="w-6 h-6 bg-space-cadet/10 text-space-cadet rounded-md flex items-center justify-center border border-space-cadet/20"><i class="fa-solid fa-moon text-[12px]"></i></div> Cek Stok Malam
+                        </span>
                     </div>
+                    <div class="glass-card p-5">
 
-                    <form id="formOpname">
-                        <input type="hidden" name="business_id" value="<?= $business_id ?>">
-                        <div class="opname-scroll bg-white/50 border border-white/80 shadow-inner mb-6">
-                            <table class="w-full text-left">
-                                <thead class="bg-white/80 backdrop-blur-xl sticky top-0 z-10 border-b border-white">
-                                    <tr>
-                                        <th class="py-4 px-4 text-[10px] font-black text-space-cadet w-[45%] uppercase tracking-wider">Barang</th>
-                                        <th class="py-4 px-2 text-[10px] font-black text-space-cadet text-center w-[18%] uppercase tracking-wider">Sistem</th>
-                                        <th class="py-4 px-2 text-[10px] font-black text-space-cadet text-center w-[20%] uppercase tracking-wider">Fisik</th>
-                                        <th class="py-4 px-2 text-[10px] font-black text-space-cadet text-center w-[17%] uppercase tracking-wider">Selisih</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if(empty($products_opname)): ?>
-                                        <tr><td colspan="4" class="p-6 text-center text-[12px] font-bold text-air-blue">Belum ada produk</td></tr>
-                                    <?php else: ?>
-                                        <?php foreach($products_opname as $p): ?>
-                                        <tr class="border-t border-white/60 hover:bg-white/30 transition-colors">
-                                            <td class="py-4 px-4 text-[13px] font-bold text-space-cadet font-serif"><?= htmlspecialchars($p['name']) ?></td>
-                                            <td id="sys_<?= $p['id'] ?>" class="py-4 px-2 text-[14px] font-black text-cyan-azure text-center"><?= $p['stock'] ?></td>
-                                            <td class="py-3 px-2 text-center">
-                                                <input type="number" name="real_stock[<?= $p['id'] ?>]" id="fisik_<?= $p['id'] ?>" 
-                                                       oninput="hitungSelisih(<?= $p['id'] ?>, <?= $p['stock'] ?>)"
-                                                       value="<?= $p['real_stock'] !== null ? $p['real_stock'] : '' ?>"
-                                                       class="glass-input w-full max-w-[50px] mx-auto" placeholder="…">
-                                            </td>
-                                            <td id="selisih_<?= $p['id'] ?>" class="py-4 px-2 text-[14px] font-black text-center text-air-blue">-</td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                        <div class="mb-6 p-4 bg-gradient-to-r from-cyan-azure/10 to-pink-lavender/10 rounded-xl border border-cyan-azure/20 shadow-inner">
+                            <p class="text-[11px] font-medium text-ucla-blue text-center leading-relaxed">
+                                Cocokkan stok sistem vs fisik hari ini.<br>
+                                <span class="text-cyan-azure font-bold">Menjaga keseimbangan bisnismu.</span>
+                            </p>
                         </div>
-                        <?php if(!empty($products_opname)): ?>
-                        <button type="button" onclick="selesaiCekStok()" class="w-full py-[18px] btn-dreamy text-[13px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3">
-                            Selesai Pengecekan <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                        <?php endif; ?>
-                    </form>
+
+                        <form id="formOpname">
+                            <input type="hidden" name="business_id" value="<?= $business_id ?>">
+                            <div class="opname-scroll bg-white/50 border border-white/80 shadow-inner mb-6">
+                                <table class="w-full text-left">
+                                    <thead class="bg-white/80 backdrop-blur-xl sticky top-0 z-10 border-b border-white">
+                                        <tr>
+                                            <th class="py-4 px-4 text-[10px] font-black text-space-cadet w-[45%] uppercase tracking-wider">Barang</th>
+                                            <th class="py-4 px-2 text-[10px] font-black text-space-cadet text-center w-[18%] uppercase tracking-wider">Sistem</th>
+                                            <th class="py-4 px-2 text-[10px] font-black text-space-cadet text-center w-[20%] uppercase tracking-wider">Fisik</th>
+                                            <th class="py-4 px-2 text-[10px] font-black text-space-cadet text-center w-[17%] uppercase tracking-wider">Selisih</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (empty($products_opname)): ?>
+                                            <tr>
+                                                <td colspan="4" class="p-6 text-center text-[12px] font-bold text-air-blue">Belum ada produk</td>
+                                            </tr>
+                                        <?php else: ?>
+                                            <?php foreach ($products_opname as $p): ?>
+                                                <tr class="border-t border-white/60 hover:bg-white/30 transition-colors">
+                                                    <td class="py-4 px-4 text-[13px] font-bold text-space-cadet font-serif"><?= htmlspecialchars($p['name']) ?></td>
+                                                    <td id="sys_<?= $p['id'] ?>" class="py-4 px-2 text-[14px] font-black text-cyan-azure text-center"><?= $p['stock'] ?></td>
+                                                    <td class="py-3 px-2 text-center">
+                                                        <input type="number" name="real_stock[<?= $p['id'] ?>]" id="fisik_<?= $p['id'] ?>"
+                                                            oninput="hitungSelisih(<?= $p['id'] ?>, <?= $p['stock'] ?>)"
+                                                            value="<?= $p['real_stock'] !== null ? $p['real_stock'] : '' ?>"
+                                                            class="glass-input w-full max-w-[50px] mx-auto" placeholder="…">
+                                                    </td>
+                                                    <td id="selisih_<?= $p['id'] ?>" class="py-4 px-2 text-[14px] font-black text-center text-air-blue">-</td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php if (!empty($products_opname)): ?>
+                                <button type="button" onclick="selesaiCekStok()" class="w-full py-[18px] btn-dreamy text-[13px] font-black uppercase tracking-[0.1em] flex items-center justify-center gap-3">
+                                    Selesai Pengecekan <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            <?php endif; ?>
+                        </form>
+                    </div>
                 </div>
-            </div>
             <?php endif; ?>
 
-        </div><div class="absolute bottom-5 left-5 right-5 navbar-glass px-4 py-3 flex justify-between items-center z-50">
+        </div>
+        <div class="absolute bottom-5 left-5 right-5 navbar-glass px-4 py-3 flex justify-between items-center z-50">
             <a href="kasir.php" class="nav-item flex flex-col items-center py-2 px-4">
                 <i class="nav-icon fa-solid fa-cash-register"></i>
                 <span class="nav-label mt-1">Kasir</span>
@@ -592,7 +774,7 @@ function formatRupiah($angka) {
         <div id="modalTransaksi" class="absolute inset-0 hidden items-center justify-center p-5 z-[100] bg-space-cadet/40 backdrop-blur-md">
             <div class="relative bg-white/95 backdrop-blur-xl w-full max-w-[320px] p-8 border border-white rounded-[40px] shadow-[0_20px_60px_rgba(16,43,83,0.2)] overflow-hidden">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-pink-lavender/20 rounded-full blur-3xl pointer-events-none"></div>
-                
+
                 <div class="w-12 h-1.5 bg-ucla-blue/20 rounded-full mx-auto mb-6"></div>
                 <h2 id="modalTitle" class="text-[20px] font-serif font-black text-space-cadet text-center mb-6 tracking-tight">Tambah Transaksi</h2>
 
@@ -620,7 +802,44 @@ function formatRupiah($angka) {
             </div>
         </div>
 
-    </div><script>
+        <!-- MODAL DETAIL (DREAMY THEME) -->
+        <div id="modalDetail" class="absolute inset-0 hidden items-center justify-center p-5 z-[110] bg-space-cadet/40 backdrop-blur-sm transition-all duration-300">
+            <div class="relative bg-[#f8f9fc]/95 backdrop-blur-2xl w-full max-w-[340px] rounded-[40px] shadow-[0_30px_80px_rgba(16,43,83,0.3)] overflow-hidden flex flex-col max-h-[85%] border-2 border-white">
+                
+                <!-- Background Glow di dalam Modal -->
+                <div class="absolute top-0 right-0 w-40 h-40 bg-pink-lavender/20 rounded-full blur-3xl pointer-events-none -mt-10 -mr-10"></div>
+                <div class="absolute bottom-20 left-0 w-32 h-32 bg-cyan-azure/10 rounded-full blur-3xl pointer-events-none -ml-10"></div>
+
+                <!-- Header Modal -->
+                <div class="px-6 pt-8 pb-2 flex-shrink-0 relative z-10">
+                    <button onclick="closeDetailModal()" class="absolute top-6 right-6 w-9 h-9 bg-white/60 backdrop-blur-md rounded-full flex items-center justify-center text-ucla-blue hover:bg-white hover:text-blush-pink transition-colors shadow-sm border border-white">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                    
+                    <div id="detailIcon" class="w-16 h-16 rounded-[22px] mx-auto mb-4 flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.1)] border-[3px] border-white">
+                        <i class="fa-solid fa-list text-white text-2xl"></i>
+                    </div>
+                    <h2 id="detailTitle" class="text-[22px] font-serif font-black text-space-cadet text-center tracking-tight">Detail</h2>
+                    <p class="text-center text-[10px] font-black text-air-blue mt-1 uppercase tracking-[0.15em]">Rincian Transaksi</p>
+                </div>
+
+                <!-- Konten List -->
+                <div class="flex-1 overflow-y-auto hide-scrollbar px-5 py-4 relative z-10">
+                    <div id="detailListContainer" class="space-y-3">
+                        <!-- Konten di-generate via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Footer Total -->
+                <div class="px-7 py-5 bg-white/80 backdrop-blur-xl border-t border-white/60 flex-shrink-0 flex justify-between items-center shadow-[0_-10px_30px_rgba(16,43,83,0.03)] relative z-20">
+                    <span class="text-[11px] font-black text-ucla-blue uppercase tracking-[0.2em]">Total</span>
+                    <span id="detailTotal" class="text-[22px] font-black text-space-cadet">Rp 0</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script>
         // Opname Logic
         function hitungSelisih(id, sysStock) {
             let fisikInput = document.getElementById('fisik_' + id).value;
@@ -640,23 +859,28 @@ function formatRupiah($angka) {
                 selisihCell.className = "py-4 px-2 text-center";
             } else if (selisih < 0) {
                 selisihCell.innerHTML = selisih;
-                selisihCell.className = "py-4 px-2 text-[15px] font-black text-center text-blush-pink"; 
+                selisihCell.className = "py-4 px-2 text-[15px] font-black text-center text-blush-pink";
             } else {
                 selisihCell.innerHTML = '+' + selisih;
                 selisihCell.className = "py-4 px-2 text-[15px] font-black text-center text-cyan-azure";
             }
         }
 
-        window.onload = function () {
+        window.onload = function() {
             if (opnameData.length > 0) {
-                opnameData.forEach(p => { hitungSelisih(p.id, p.stock); });
+                opnameData.forEach(p => {
+                    hitungSelisih(p.id, p.stock);
+                });
             }
         };
 
         function selesaiCekStok() {
             let form = document.getElementById('formOpname');
             let formData = new FormData(form);
-            fetch('proses_opname.php', { method: 'POST', body: formData })
+            fetch('proses_opname.php', {
+                    method: 'POST',
+                    body: formData
+                })
                 .then(r => r.text())
                 .then(() => {
                     Swal.fire({
@@ -680,17 +904,26 @@ function formatRupiah($angka) {
                         width: '320px',
                         background: 'rgba(255, 255, 255, 0.95)',
                         backdrop: 'rgba(16, 43, 83, 0.5)',
-                        customClass: { 
-                            popup: 'rounded-[40px] border border-white shadow-2xl', 
+                        customClass: {
+                            popup: 'rounded-[40px] border border-white shadow-2xl',
                             htmlContainer: '!overflow-hidden !m-0 !p-5',
-                            confirmButton: 'swal-gradient-btn mt-2 mb-2' 
+                            confirmButton: 'swal-gradient-btn mt-2 mb-2'
                         }
                     }).then(() => {
                         window.location.href = 'main_page.php';
                     });
                 })
                 .catch(() => {
-                    Swal.fire({ icon: 'error', title: 'Oops...', text: 'Gagal menghubungi server.', confirmButtonColor: '#102B53', width: '300px', customClass: { popup: 'rounded-[30px]' } });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gagal menghubungi server.',
+                        confirmButtonColor: '#102B53',
+                        width: '300px',
+                        customClass: {
+                            popup: 'rounded-[30px]'
+                        }
+                    });
                 });
         }
 
@@ -700,37 +933,204 @@ function formatRupiah($angka) {
             type: 'bar',
             data: {
                 labels: chartLabelsData,
-                datasets: [
-                    { 
-                        label: 'Pemasukan', 
-                        data: chartPemasukanData, 
-                        backgroundColor: '#4E7AB1', 
-                        borderRadius: 6, 
-                        barPercentage: 0.65, 
-                        categoryPercentage: 0.75 
+                datasets: [{
+                        label: 'Pemasukan',
+                        data: chartPemasukanData,
+                        backgroundColor: '#4E7AB1',
+                        borderRadius: 6,
+                        barPercentage: 0.65,
+                        categoryPercentage: 0.75
                     },
-                    { 
-                        label: 'Pengeluaran', 
-                        data: chartPengeluaranData, 
-                        backgroundColor: '#CEB5D4', 
-                        borderRadius: 6, 
-                        barPercentage: 0.65, 
-                        categoryPercentage: 0.75 
+                    {
+                        label: 'Pengeluaran',
+                        data: chartPengeluaranData,
+                        backgroundColor: '#CEB5D4',
+                        borderRadius: 6,
+                        barPercentage: 0.65,
+                        categoryPercentage: 0.75
                     }
                 ]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: true, position: 'top', labels: { font: { size: 10, family: 'Nunito', weight: '800' }, usePointStyle: true, boxWidth: 6, color: '#50698D' } },
-                    tooltip: { backgroundColor: 'rgba(255, 255, 255, 0.95)', titleColor: '#102B53', bodyColor: '#50698D', borderColor: '#eef2f8', borderWidth: 1, padding: 12, boxPadding: 4, usePointStyle: true, titleFont: {family: 'Quicksand', size: 13, weight: 'bold'}, bodyFont: {family: 'Nunito', size: 12, weight: 'bold'}, callbacks: { label: function (ctx) { return (ctx.dataset.label || '') + ': Rp ' + ctx.raw.toLocaleString('id-ID'); } } }
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 10,
+                                family: 'Nunito',
+                                weight: '800'
+                            },
+                            usePointStyle: true,
+                            boxWidth: 6,
+                            color: '#50698D'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        titleColor: '#102B53',
+                        bodyColor: '#50698D',
+                        borderColor: '#eef2f8',
+                        borderWidth: 1,
+                        padding: 12,
+                        boxPadding: 4,
+                        usePointStyle: true,
+                        titleFont: {
+                            family: 'Quicksand',
+                            size: 13,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            family: 'Nunito',
+                            size: 12,
+                            weight: 'bold'
+                        },
+                        callbacks: {
+                            label: function(ctx) {
+                                return (ctx.dataset.label || '') + ': Rp ' + ctx.raw.toLocaleString('id-ID');
+                            }
+                        }
+                    }
                 },
                 scales: {
-                    y: { beginAtZero: true, border: { display: false }, grid: { color: 'rgba(255, 255, 255, 0.4)', tickLength: 0 }, ticks: { padding: 8, font: { size: 9, family: 'Nunito', weight: 'bold' }, color: '#7D9FC0', callback: v => v >= 1000000 ? (v/1000000)+'M' : v >= 1000 ? (v/1000)+'K' : v } },
-                    x: { border: { display: false }, grid: { display: false }, ticks: { font: { size: 10, family: 'Nunito', weight: '800' }, color: '#50698D' } }
+                    y: {
+                        beginAtZero: true,
+                        border: {
+                            display: false
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.4)',
+                            tickLength: 0
+                        },
+                        ticks: {
+                            padding: 8,
+                            font: {
+                                size: 9,
+                                family: 'Nunito',
+                                weight: 'bold'
+                            },
+                            color: '#7D9FC0',
+                            callback: v => v >= 1000000 ? (v / 1000000) + 'M' : v >= 1000 ? (v / 1000) + 'K' : v
+                        }
+                    },
+                    x: {
+                        border: {
+                            display: false
+                        },
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10,
+                                family: 'Nunito',
+                                weight: '800'
+                            },
+                            color: '#50698D'
+                        }
+                    }
                 }
             }
         });
+
+        // Ambil data dari PHP
+        const listPemasukan = <?= $js_list_pemasukan ?>;
+        const listPengeluaran = <?= $js_list_pengeluaran ?>;
+        const listKeuntungan = <?= $js_list_keuntungan ?>;
+
+        function openDetailModal(type) {
+            const modal = document.getElementById('modalDetail');
+            const title = document.getElementById('detailTitle');
+            const iconWrap = document.getElementById('detailIcon');
+            const iconTag = iconWrap.querySelector('i');
+            const container = document.getElementById('detailListContainer');
+            const totalDisplay = document.getElementById('detailTotal');
+
+            let data = [];
+            let total = 0;
+            let iconClass = '';
+            let bgClass = '';
+
+            // Setup Tema Berdasarkan Tipe
+            if (type === 'pemasukan') {
+                title.innerText = 'Pemasukan';
+                data = listPemasukan;
+                iconClass = 'fa-arrow-down';
+                bgClass = 'bg-gradient-to-br from-cyan-azure to-[#81A4CD]';
+            } else if (type === 'pengeluaran') {
+                title.innerText = 'Pengeluaran';
+                data = listPengeluaran;
+                iconClass = 'fa-arrow-up';
+                bgClass = 'bg-gradient-to-br from-pink-lavender to-[#e1ccdb]';
+            } else if (type === 'keuntungan') {
+                title.innerText = 'Keuntungan';
+                data = listKeuntungan;
+                iconClass = 'fa-coins';
+                bgClass = 'bg-gradient-to-br from-mint-green to-[#88d5c2]';
+            }
+
+            iconWrap.className = `w-16 h-16 rounded-[22px] mx-auto mb-4 flex items-center justify-center shadow-lg border-[3px] border-white ${bgClass}`;
+            iconTag.className = `fa-solid ${iconClass} text-white text-2xl`;
+
+            container.innerHTML = '';
+            
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="py-12 flex flex-col items-center justify-center opacity-60">
+                        <i class="fa-solid fa-receipt text-4xl text-air-blue mb-3"></i>
+                        <p class="text-center text-[12px] font-bold text-air-blue">Belum ada rincian tercatat.</p>
+                    </div>`;
+            } else {
+                data.forEach(item => {
+                    let amountColor = '';
+                    let operator = '';
+                    
+                    // PERBAIKAN: Ubah string menjadi angka (Float) agar bisa dijumlahkan!
+                    let amountVal = parseFloat(item.amount) || 0; 
+                    
+                    if (type === 'keuntungan') {
+                        amountColor = item.is_positive ? 'text-mint-green' : 'text-blush-pink';
+                        operator = item.is_positive ? '+' : ''; // Minus sudah bawaan angkanya jika negatif
+                        total += item.is_positive ? amountVal : -amountVal;
+                    } else {
+                        amountColor = type === 'pemasukan' ? 'text-cyan-azure' : 'text-pink-lavender';
+                        total += amountVal;
+                    }
+
+                    // Tampilan List ala Glassmorphism
+                    container.innerHTML += `
+                        <div class="bg-white/80 backdrop-blur-md border border-white p-4 rounded-[24px] flex justify-between items-center shadow-[0_8px_25px_rgba(80,105,141,0.06)] transition-all hover:bg-white hover:scale-[1.02]">
+                            <div class="flex-1 pr-3">
+                                <h4 class="text-[13px] font-bold font-serif text-space-cadet leading-snug line-clamp-2">${item.desc}</h4>
+                                <p class="text-[10px] font-bold text-air-blue mt-1.5 flex items-center gap-1.5">
+                                    <i class="fa-regular fa-clock text-[9px] opacity-70"></i> ${item.date}
+                                </p>
+                            </div>
+                            <div class="text-right flex-shrink-0 bg-slate-50/50 px-3 py-2 rounded-2xl border border-white/60">
+                                <span class="text-[14px] font-black ${amountColor}">${operator}Rp ${amountVal.toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Menampilkan Total yang sudah benar
+            totalDisplay.innerText = 'Rp ' + total.toLocaleString('id-ID');
+            totalDisplay.className = `text-[22px] font-black ${total >= 0 ? 'text-space-cadet' : 'text-blush-pink'}`;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('modalDetail');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
     </script>
 </body>
+
 </html>

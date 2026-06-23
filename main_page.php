@@ -536,11 +536,26 @@ function formatRupiah($angka)
             transform: scale(0.96) !important;
             box-shadow: 0 4px 12px rgba(206, 181, 212, 0.3) !important;
         }
+                #phone {
+    position: relative;
+    overflow: hidden;
+}
+
+#phone .swal2-container {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#phone .swal2-backdrop-show {
+    background: rgba(16, 43, 83, 0.5) !important;
+}
     </style>
 </head>
 
 <body class="bg-slate-100 flex items-center justify-center min-h-screen py-5">
-    <div class="w-[360px] h-[740px] phone-shell dreamy-bg relative overflow-hidden flex flex-col">
+    <div id="phone"class="w-[360px] h-[740px] phone-shell dreamy-bg relative overflow-hidden flex flex-col">
 
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
@@ -884,6 +899,7 @@ function formatRupiah($angka)
                 .then(r => r.text())
                 .then(() => {
                     Swal.fire({
+                        target: '#phone',
                         html: `
                             <div class="relative">
                                 <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-40 pointer-events-none" style="background: #CEB5D4;"></div>
@@ -915,6 +931,7 @@ function formatRupiah($angka)
                 })
                 .catch(() => {
                     Swal.fire({
+                        target: '#phone',
                         icon: 'error',
                         title: 'Oops...',
                         text: 'Gagal menghubungi server.',

@@ -169,12 +169,28 @@ $products = $stmt_prod->get_result();
             box-shadow: 0 10px 25px rgba(206, 181, 212, 0.5) !important;
             border: none !important;
         }
+
+        #phone {
+    position: relative;
+    overflow: hidden;
+}
+
+#phone .swal2-container {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#phone .swal2-backdrop-show {
+    background: rgba(16, 43, 83, 0.5) !important;
+}
     </style>
 </head>
 
 <body class="bg-slate-100 flex items-center justify-center min-h-screen py-5">
 
-    <div class="w-[360px] h-[740px] phone-shell dreamy-bg relative overflow-hidden flex flex-col">
+    <div id="phone"class="w-[360px] h-[740px] phone-shell dreamy-bg relative overflow-hidden flex flex-col">
 
         <!-- FLOATING COLORFUL ORBS -->
         <div class="orb orb-1"></div>
@@ -237,7 +253,7 @@ $products = $stmt_prod->get_result();
 
         <!-- FLOATING CART BUTTON (VIBRANT) -->
         <div onclick="openCart()"
-            class="absolute bottom-24 left-1/2 -translate-x-1/2 w-[88%] bg-gradient-to-r from-cyan-azure via-[#81A4CD] to-pink-lavender p-4 rounded-[28px] shadow-[0_15px_35px_rgba(206,181,212,0.4)] flex items-center justify-between cursor-pointer active:scale-95 transition-transform z-40 border border-white/40">
+            class="absolute mb-2 bottom-24 left-1/2 -translate-x-1/2 w-[88%] bg-gradient-to-r from-cyan-azure via-[#81A4CD] to-pink-lavender p-4 rounded-[28px] shadow-[0_15px_35px_rgba(206,181,212,0.4)] flex items-center justify-between cursor-pointer active:scale-95 transition-transform z-40 border border-white/40">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-white/20 rounded-[20px] flex items-center justify-center text-white relative backdrop-blur-md border border-white/30">
                     <i class="fa-solid fa-basket-shopping text-xl"></i>
@@ -398,6 +414,7 @@ $products = $stmt_prod->get_result();
             const currentQty = cart.filter(item => item.id === id).length;
             if (currentQty >= stock) {
                 Swal.fire({
+                    target: '#phone',
                     icon: 'warning',
                     iconColor: '#CEB5D4',
                     title: 'Stok Terbatas',
@@ -499,6 +516,7 @@ $products = $stmt_prod->get_result();
         function successFinish(method) {
             if (cart.length === 0) {
                 Swal.fire({
+                    target: '#phone',
                     icon: 'warning',
                     iconColor: '#CEB5D4',
                     title: 'Keranjang Kosong',
@@ -515,6 +533,7 @@ $products = $stmt_prod->get_result();
             }
 
             Swal.fire({
+                target: '#phone',
                 title: 'Memproses Pembayaran...',
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); },
@@ -532,6 +551,7 @@ $products = $stmt_prod->get_result();
                     Swal.close();
                     if (data.success) {
                         Swal.fire({
+                            target: '#phone',
                             html: `
                                 <div class="relative">
                                     <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-40 pointer-events-none" style="background: #CEB5D4;"></div>
@@ -557,6 +577,7 @@ $products = $stmt_prod->get_result();
                             width: '320px',
                             background: 'rgba(255, 255, 255, 0.95)',
                             backdrop: 'rgba(16, 43, 83, 0.5)',
+                            // 
                             customClass: {
                                 popup: 'rounded-[40px] border border-white shadow-2xl',
                                 // PERBAIKAN UTAMA: Paksa kontainer HTML SweetAlert agar overflow-nya terpotong
@@ -568,6 +589,7 @@ $products = $stmt_prod->get_result();
                         });
                     } else {
                         Swal.fire({
+                            target: '#phone',
                             icon: 'error',
                             title: 'Gagal',
                             text: data.message,
@@ -579,6 +601,7 @@ $products = $stmt_prod->get_result();
                 .catch(err => {
                     Swal.close();
                     Swal.fire({
+                        target: '#phone',
                         icon: 'error',
                         title: 'Error Server',
                         text: 'Gagal memproses transaksi.',

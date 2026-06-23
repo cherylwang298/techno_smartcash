@@ -187,12 +187,28 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
             50% { transform: translateY(-8px); }
         }
         .animate-float-helper { animation: float-helper 3s ease-in-out infinite; }
+
+                        #phone {
+    position: relative;
+    overflow: hidden;
+}
+
+#phone .swal2-container {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#phone .swal2-backdrop-show {
+    background: rgba(16, 43, 83, 0.5) !important;
+}
     </style>
 </head>
 
 <body class="bg-slate-100 flex items-center justify-center min-h-screen py-5">
 
-    <div class="w-[360px] h-[740px] phone-shell dreamy-bg relative overflow-hidden flex flex-col">
+    <div id="phone"class="w-[360px] h-[740px] phone-shell dreamy-bg relative overflow-hidden flex flex-col">
 
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
@@ -363,6 +379,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
         // Notifikasi Foto Upload
         if (urlParams.get('upload') === 'success') {
             Swal.fire({
+                target: '#phone',
                 html: `
                     <div class="relative">
                         <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-40 pointer-events-none" style="background: #CEB5D4;"></div>
@@ -395,6 +412,7 @@ $initial = strtoupper(substr($nama_toko, 0, 1));
 
         <?php if(isset($upload_error)): ?>
             Swal.fire({
+                target: '#phone',
                 icon: 'error',
                 iconColor: '#E8778A', 
                 title: 'Gagal Upload',
